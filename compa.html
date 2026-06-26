@@ -3,185 +3,378 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Impresión 3D explicada para que NO te pierdas, compa 🤡</title>
+<title>🖨️ Manual del Pendejo · Impresión 3D para mi compa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Comic+Neue:ital,wght@0,400;0,700;1,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Comic+Neue:ital,wght@0,400;0,700;1,700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family:'Comic Neue', 'Comic Sans MS', cursive;
-    background: repeating-linear-gradient(135deg,#fff7d6,#fff7d6 40px,#ffefb0 40px,#ffefb0 80px);
-    color:#2b2118; line-height:1.6; padding:18px; overflow-x:hidden;
-  }
-  .wrap { max-width:820px; margin:0 auto; }
-  h1,h2,h3,.fred { font-family:'Fredoka',sans-serif; }
+  :root{ --ink:#0d0b14; --pink:#ff4d8d; --orange:#ff9a3d; --violet:#a855f7; --green:#34d399; --cyan:#22d3ee; --amber:#fbbf24; }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{ font-family:'Comic Neue','Comic Sans MS',cursive; background:var(--ink); color:#f4f0ff; overflow-x:hidden; }
+  h1,h2,h3,.fred{ font-family:'Fredoka',sans-serif; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
 
-  /* Cabezote */
-  .hero {
-    background:linear-gradient(135deg,#ff5d8f,#ff8a3d);
-    border:6px dashed #2b2118; border-radius:28px; padding:30px 24px; text-align:center;
-    box-shadow:10px 10px 0 #2b2118; transform:rotate(-1.2deg); margin:10px 0 30px;
-  }
-  .hero h1 { color:#fff; font-size:clamp(28px,6vw,46px); font-weight:700; text-shadow:3px 3px 0 #2b2118; line-height:1.1; }
-  .hero p { color:#fff; font-weight:700; font-size:18px; margin-top:10px; text-shadow:1px 1px 0 #b53; }
-  .para-quien {
-    background:#fff; border:4px solid #2b2118; border-radius:14px; display:inline-block;
-    padding:8px 16px; margin-top:16px; font-family:'Fredoka'; font-weight:600; transform:rotate(1deg);
-  }
-  .para-quien b { color:#e23; }
+  /* Fondo animado */
+  #bg{ position:fixed; inset:0; z-index:0; pointer-events:none; }
+  .orb{ position:fixed; border-radius:50%; filter:blur(90px); opacity:.5; z-index:0; pointer-events:none; animation:flota 14s ease-in-out infinite; }
+  .o1{ width:420px;height:420px; background:var(--pink); top:-8%; left:-6%; }
+  .o2{ width:380px;height:380px; background:var(--violet); top:35%; right:-10%; animation-delay:-5s; }
+  .o3{ width:340px;height:340px; background:var(--cyan); bottom:-6%; left:25%; animation-delay:-9s; }
+  @keyframes flota{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(30px,-40px) scale(1.12);} }
+  #confeti{ position:fixed; inset:0; z-index:60; pointer-events:none; }
 
-  /* Medidor de pendejez */
-  .medidor {
-    background:#fff; border:5px solid #2b2118; border-radius:20px; padding:18px 20px; margin:0 0 28px;
-    box-shadow:7px 7px 0 #2b2118; transform:rotate(.6deg);
-  }
-  .medidor h3 { font-size:20px; color:#7c3aed; margin-bottom:8px; }
-  .barra { background:#eee; border:3px solid #2b2118; border-radius:30px; height:34px; overflow:hidden; position:relative; }
-  .barra > div {
-    background:repeating-linear-gradient(45deg,#ff5d8f,#ff5d8f 14px,#ff8a3d 14px,#ff8a3d 28px);
-    height:100%; width:97%; display:flex; align-items:center; justify-content:flex-end; padding-right:12px;
-    color:#fff; font-weight:700; font-family:'Fredoka'; text-shadow:1px 1px 0 #2b2118; animation:llenar 2.4s ease-out;
-  }
-  @keyframes llenar { from{width:0;} to{width:97%;} }
-  .medidor small { display:block; margin-top:8px; font-style:italic; color:#666; }
+  .wrap{ position:relative; z-index:2; max-width:880px; margin:0 auto; padding:20px 16px 60px; }
 
-  /* Pasos */
-  .paso {
-    background:#fff; border:5px solid #2b2118; border-radius:22px; padding:22px 22px 22px 26px;
-    margin:0 0 26px; box-shadow:8px 8px 0 #2b2118; position:relative;
-  }
-  .paso:nth-child(odd){ transform:rotate(-.7deg);} .paso:nth-child(even){ transform:rotate(.7deg);}
-  .num {
-    position:absolute; top:-22px; left:-14px; width:54px; height:54px; border-radius:50%;
-    background:#7c3aed; color:#fff; border:5px solid #2b2118; display:grid; place-items:center;
-    font-family:'Fredoka'; font-weight:700; font-size:26px; box-shadow:3px 3px 0 #2b2118; transform:rotate(-8deg);
-  }
-  .paso h2 { font-size:23px; color:#e23; margin-bottom:10px; padding-left:42px; }
-  .paso p { margin-bottom:10px; font-size:17px; }
-  .analogia {
-    background:#fff3bf; border:3px dashed #d99a00; border-radius:14px; padding:12px 14px; margin:12px 0;
-    font-weight:700;
-  }
-  .analogia::before { content:"🧠 PIÉNSALO ASÍ, BABOSO: "; font-family:'Fredoka'; color:#d97706; }
-  .ojo { background:#ffd9d9; border:3px solid #e23; border-radius:14px; padding:10px 14px; margin:10px 0; font-weight:700; color:#a00; }
-  .ojo::before { content:"⚠️ NO LE BUSQUES: "; font-family:'Fredoka'; }
-  .si-no { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
-  .chip { border:3px solid #2b2118; border-radius:30px; padding:6px 14px; font-weight:700; font-family:'Fredoka'; }
-  .si { background:#bdf5c8; } .no { background:#ffc2c2; }
+  /* LOADER */
+  #loader{ position:fixed; inset:0; z-index:200; background:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center; padding:20px; transition:opacity .6s; }
+  #loader h2{ font-size:clamp(20px,5vw,30px); color:var(--amber); }
+  #loadbar{ width:min(420px,86vw); height:26px; border:3px solid #fff; border-radius:30px; overflow:hidden; background:#1a1622; }
+  #loadbar > div{ height:100%; width:0; background:linear-gradient(90deg,var(--pink),var(--orange)); }
+  #loadtxt{ font-family:'JetBrains Mono'; color:#9aa; font-size:14px; min-height:20px; }
 
-  ul.lista { list-style:none; padding-left:4px; }
-  ul.lista li { padding:6px 0 6px 32px; position:relative; font-size:17px; }
-  ul.lista li::before { content:"👉"; position:absolute; left:0; }
+  /* HERO */
+  .hero{ text-align:center; padding:26px 16px 8px; }
+  .glitch{ font-size:clamp(30px,7vw,58px); font-weight:700; line-height:1.05; letter-spacing:-1px;
+    background:linear-gradient(90deg,var(--pink),var(--orange),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 30px rgba(255,77,141,.35); }
+  .sub{ margin-top:14px; font-weight:700; font-size:clamp(15px,3.4vw,19px); color:#cbb6ff; }
+  .typed{ font-family:'JetBrains Mono'; color:var(--green); font-size:clamp(13px,3vw,16px); margin-top:10px; min-height:24px; }
 
-  .grandote { font-family:'Fredoka'; font-weight:700; font-size:22px; color:#7c3aed; text-align:center; margin:8px 0; }
+  /* Impresora animada */
+  .printer{ margin:24px auto 6px; width:230px; max-width:80vw; }
+  .printer svg{ width:100%; height:auto; display:block; }
+  @keyframes cabezal{ 0%,100%{ transform:translateX(-46px);} 50%{ transform:translateX(46px);} }
+  @keyframes subepieza{ 0%{ transform:translateY(0); } 100%{ transform:translateY(-46px);} }
+  .cabezal{ animation:cabezal 1.6s ease-in-out infinite; }
+  .pieza{ transform-origin:center bottom; animation:subepieza 6s linear infinite alternate; }
 
-  .cierre {
-    background:#2b2118; color:#fff; border-radius:22px; padding:28px 24px; text-align:center;
-    box-shadow:8px 8px 0 #7c3aed; transform:rotate(-.5deg); margin-top:12px;
-  }
-  .cierre h2 { color:#ffd84d; font-size:26px; margin-bottom:12px; }
-  .cierre p { font-size:18px; font-weight:700; margin-bottom:8px; }
-  .firma { margin-top:16px; font-family:'Fredoka'; color:#ff8a3d; font-weight:600; }
-  .mini { text-align:center; color:#8a7; font-size:13px; margin:26px 0 6px; font-style:italic;}
-  .emoji-grande{ font-size:30px;}
+  /* Tarjetas */
+  .card{ background:linear-gradient(160deg,#1b1626,#140f1d); border:2px solid rgba(255,255,255,.08); border-radius:22px; padding:24px 22px; margin:22px 0; box-shadow:0 18px 50px rgba(0,0,0,.5); position:relative; }
+  .card::after{ content:""; position:absolute; inset:0; border-radius:22px; pointer-events:none; box-shadow:inset 0 0 0 1px rgba(255,255,255,.04); }
+  .tag{ display:inline-block; font-family:'Fredoka'; font-weight:700; font-size:12px; letter-spacing:1px; text-transform:uppercase; padding:5px 12px; border-radius:30px; margin-bottom:12px; }
+  .t-pink{ background:rgba(255,77,141,.16); color:var(--pink); } .t-violet{ background:rgba(168,85,247,.16); color:var(--violet); }
+  .t-green{ background:rgba(52,211,153,.16); color:var(--green); } .t-amber{ background:rgba(251,191,36,.16); color:var(--amber); }
+  .card h2{ font-size:clamp(20px,4.4vw,26px); margin-bottom:12px; }
+  .card p{ font-size:16px; color:#e7defc; margin-bottom:10px; }
+  .num-bola{ position:absolute; top:-20px; left:-12px; width:50px; height:50px; border-radius:14px; transform:rotate(-10deg);
+    background:linear-gradient(135deg,var(--violet),var(--pink)); display:grid; place-items:center; font-family:'Fredoka'; font-weight:700; font-size:24px; color:#fff; box-shadow:0 8px 20px rgba(168,85,247,.5); }
+
+  .analogia{ background:rgba(251,191,36,.07); border-left:4px solid var(--amber); border-radius:0 12px 12px 0; padding:12px 14px; margin:12px 0; font-weight:700; }
+  .analogia b{ color:var(--amber); }
+  .negro{ background:rgba(255,77,141,.06); border:1px dashed var(--pink); border-radius:12px; padding:12px 14px; margin:12px 0; color:#ffd6e6; font-style:italic; }
+  .negro::before{ content:"☠️ DATO CRUEL: "; font-family:'Fredoka'; font-style:normal; color:var(--pink); }
+
+  ul.lista{ list-style:none; } ul.lista li{ padding:7px 0 7px 30px; position:relative; font-size:16px; color:#e7defc; }
+  ul.lista li::before{ content:"💀"; position:absolute; left:0; font-size:14px; }
+
+  /* Medidor / contador */
+  .stat-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 0; }
+  .stat{ background:#140f1d; border:2px solid rgba(255,255,255,.08); border-radius:16px; padding:14px 8px; text-align:center; }
+  .stat .n{ font-family:'Fredoka'; font-weight:700; font-size:clamp(22px,5vw,30px); background:linear-gradient(90deg,var(--pink),var(--orange)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .stat .l{ font-size:11px; color:#9aa; text-transform:uppercase; letter-spacing:.5px; margin-top:4px; }
+  .barra{ background:#0f0b16; border:3px solid rgba(255,255,255,.12); border-radius:30px; height:32px; overflow:hidden; margin-top:6px; }
+  .barra > div{ height:100%; width:0; background:repeating-linear-gradient(45deg,var(--pink),var(--pink) 14px,var(--orange) 14px,var(--orange) 28px); display:flex; align-items:center; justify-content:flex-end; padding-right:12px; color:#fff; font-weight:700; font-family:'Fredoka'; transition:width 2s cubic-bezier(.2,.9,.3,1); }
+
+  /* Input nombre */
+  .namebox{ text-align:center; }
+  .namebox input{ font-family:'Fredoka'; font-weight:600; font-size:18px; padding:12px 16px; border-radius:14px; border:3px solid var(--violet); background:#0f0b16; color:#fff; text-align:center; outline:none; width:min(320px,80vw); }
+  .namebox input::placeholder{ color:#776; }
+
+  /* Botones */
+  .btn{ font-family:'Fredoka'; font-weight:700; font-size:17px; padding:13px 26px; border:none; border-radius:40px; cursor:pointer; color:#fff;
+    background:linear-gradient(135deg,var(--violet),var(--pink)); box-shadow:0 10px 26px rgba(168,85,247,.45); transition:transform .12s; }
+  .btn:hover{ transform:translateY(-3px) scale(1.03); } .btn:active{ transform:scale(.96); }
+  .btn.ghost{ background:transparent; border:2px solid rgba(255,255,255,.25); box-shadow:none; }
+  .center{ text-align:center; }
+
+  /* Test */
+  #qbox{ min-height:60px; }
+  .opt{ display:block; width:100%; text-align:left; margin:8px 0; padding:13px 16px; border-radius:14px; border:2px solid rgba(255,255,255,.1); background:#140f1d; color:#e7defc; font-family:'Comic Neue'; font-weight:700; font-size:15px; cursor:pointer; transition:.15s; }
+  .opt:hover{ border-color:var(--pink); transform:translateX(4px); }
+
+  /* Certificado */
+  #cert{ display:none; background:radial-gradient(circle at 50% 0%,#241a33,#140f1d); border:3px double var(--amber); border-radius:18px; padding:26px 20px; text-align:center; position:relative; overflow:hidden; }
+  #cert h3{ color:var(--amber); font-size:clamp(20px,5vw,28px); letter-spacing:1px; }
+  #cert .nom{ font-family:'Fredoka'; font-weight:700; font-size:clamp(24px,6vw,38px); margin:10px 0; background:linear-gradient(90deg,var(--pink),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  #cert .foot{ font-family:'JetBrains Mono'; font-size:12px; color:#9aa; margin-top:14px; }
+  .sello{ position:absolute; right:14px; bottom:14px; width:90px; height:90px; border:3px solid var(--pink); border-radius:50%; display:grid; place-items:center; color:var(--pink); font-family:'Fredoka'; font-weight:700; font-size:11px; text-align:center; transform:rotate(-16deg); opacity:.85; line-height:1.1; }
+
+  .cierre{ text-align:center; padding:30px 18px; }
+  .cierre h2{ font-size:clamp(24px,6vw,36px); color:var(--amber); margin-bottom:12px; }
+  .cierre p{ font-size:17px; font-weight:700; color:#e7defc; margin-bottom:8px; }
+  .mini{ text-align:center; color:#665; font-size:12px; font-style:italic; margin-top:30px; }
+  a.btn{ text-decoration:none; display:inline-block; }
 </style>
 </head>
 <body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div style="font-size:46px">🧠🔍</div>
+  <h2>Escaneando el cerebro del sujeto...</h2>
+  <div id="loadbar"><div></div></div>
+  <div id="loadtxt">Iniciando...</div>
+</div>
+
+<canvas id="bg"></canvas>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<canvas id="confeti"></canvas>
+
 <div class="wrap">
 
+  <!-- HERO -->
   <div class="hero">
-    <h1>🖨️ LA IMPRESIÓN 3D<br>EXPLICADA PARA QUE NO TE PIERDAS, COMPA 🤡</h1>
-    <p>Sé que eres medio lento mental, carnal, así que te lo voy a explicar<br>como si tuvieras 4 años y un casco puesto. Pon atención. 👇</p>
-    <div class="para-quien">PARA: <b>______________</b> (sí, tú, el pendejo que está leyendo)</div>
-  </div>
+    <div class="tag t-amber" style="margin-bottom:18px">📕 Manual oficial · Edición para tontos</div>
+    <h1 class="glitch">LA IMPRESIÓN 3D<br>EXPLICADA PARA QUE NI TÚ TE PIERDAS</h1>
+    <p class="sub">Un documento científico dedicado a la única persona que necesita instrucciones para parpadear.</p>
+    <div class="typed" id="typed"></div>
 
-  <div class="medidor">
-    <h3>📊 Tu nivel de pendejo (medición oficial)</h3>
-    <div class="barra"><div>97% PENDEJO 🫠</div></div>
-    <small>Tranquilo, con esta página bajamos a 94%. Es un milagro, no te emociones.</small>
-  </div>
-
-  <div class="paso">
-    <div class="num">1</div>
-    <h2>¿Qué chingados es una impresora 3D?</h2>
-    <p>Es una maquinita que <b>hace objetos de plástico de la nada</b>, poniendo capita sobre capita hasta que sale la pieza completa. No imprime hojas, baboso, imprime <b>cosas de a de veras</b> que puedes agarrar con tu manota.</p>
-    <div class="analogia">Es como una <b>pistola de silicón mágica</b> 🔫 que en vez de dejar bolas de pegamento, va dibujando un muñeco en el aire. O como cuando le echas capas y capas de crema a un pastel 🎂 hasta que queda alto. Misma onda, pero con plástico y sin que te lo comas (no te lo comas).</p>
-  </div>
-
-  <div class="paso">
-    <div class="num">2</div>
-    <h2>¿Y qué vamos a vender, mensо?</h2>
-    <p>Piezas <b>a la medida</b>. O sea: la gente nos trae lo que necesita y nosotros se lo hacemos. Como sastre, pero de plástico. 🧵➡️🧱</p>
-    <ul class="lista">
-      <li><b>Esa pieza que ya no venden</b> de tu carro viejito (el cliptecito que truena y no encuentras ni en el yonke).</li>
-      <li><b>Cosas para el estéreo del carro</b> 🔊: cajas para las bocinas, soportes, embellecedores. Sí, para que tu carcacha truene bonito.</li>
-      <li><b>Piezas para fábricas e ingenios</b> 🏭: cositas que las máquinas necesitan y que comprarlas tarda un mes. Nosotros en 2 días.</li>
-      <li><b>Prototipos y maquetas</b> para arquitectos y diseñadores que quieren ver su idea hecha realidad.</li>
-      <li>Clips, perillas, manijas, soportes... toda la chácharita de plástico que se rompe y nadie tiene.</li>
-    </ul>
-    <div class="analogia">Imagínate un <b>OXXO de piezas</b> 🏪 pero que en vez de tener todo en el estante, lo fabricamos al momento con la maquinita. ¿Ya? ¿O le pongo dibujos?</div>
-  </div>
-
-  <div class="paso">
-    <div class="num">3</div>
-    <h2>¿Cómo ganamos varo? (la parte que sí te importa, interesado)</h2>
-    <p>Bien fácil, hasta tú puedes:</p>
-    <ul class="lista">
-      <li>El cliente llega con <b>un dibujo, una foto, o la pieza rota</b>. 📸</li>
-      <li>Nosotros la dibujamos en la compu (eso lo hace la máquina y un servidor, tú nomás cobras). 💻</li>
-      <li>La impresora la <b>imprime solita</b> mientras nos echamos un taco. 🌮</li>
-      <li>Le entregamos la pieza y <b>el cliente nos paga</b>. 💸</li>
-    </ul>
-    <p class="grandote">El plástico cuesta CENTAVOS y lo vendemos en PESOS. Ahí está el negocio, Einstein. 🧠✨</p>
-    <div class="analogia">Es como vender <b>agua de limón</b> 🍋: el limón y el agua casi no cuestan, pero el vaso lo vendes a 15 varos. Aquí igual pero con plástico y sin que te quede pegajosa la mano.</div>
-  </div>
-
-  <div class="paso">
-    <div class="num">4</div>
-    <h2>¿Por qué NO es una pendejada el negocio?</h2>
-    <p>Porque <b>en Cardel NO hay NADIE más que haga esto</b>. Cero. Nadita. 🦗</p>
-    <p>Ahorita la gente de aquí tiene que irse hasta <b>Veracruz o Xalapa</b> (1 a 2 horas de camino 🚗💨) para que les hagan una pieza. Nosotros se la hacemos <b>aquí mismo</b> y rapidito.</p>
-    <div class="analogia">Somos como <b>el único puesto de tacos en una colonia con pura hambre</b> 🌮👀. ¿Captas el chiste o le bajamos más?</div>
-    <div class="si-no">
-      <span class="chip si">✅ Únicos en el pueblo</span>
-      <span class="chip si">✅ Material barato</span>
-      <span class="chip si">✅ Cobramos por el trabajo</span>
-      <span class="chip si">✅ Empezamos en casa (sin renta)</span>
+    <!-- Impresora animada -->
+    <div class="printer" aria-label="impresora imprimiendo">
+      <svg viewBox="0 0 220 200">
+        <rect x="20" y="20" width="180" height="150" rx="10" fill="#1b1626" stroke="#a855f7" stroke-width="3"/>
+        <line x1="40" y1="55" x2="180" y2="55" stroke="#473b5e" stroke-width="4"/>
+        <g class="cabezal">
+          <rect x="96" y="46" width="28" height="22" rx="4" fill="#ff4d8d"/>
+          <polygon points="104,68 116,68 110,80" fill="#ff9a3d"/>
+          <rect x="108" y="78" width="4" height="40" fill="#22d3ee" opacity=".7"/>
+        </g>
+        <rect x="60" y="140" width="100" height="14" rx="3" fill="#473b5e"/>
+        <g class="pieza"><rect x="86" y="118" width="48" height="24" rx="3" fill="#34d399"/></g>
+        <circle cx="40" cy="178" r="8" fill="#a855f7"/><circle cx="180" cy="178" r="8" fill="#a855f7"/>
+      </svg>
     </div>
   </div>
 
-  <div class="paso">
-    <div class="num">5</div>
-    <h2>¿Qué máquina vamos a comprar?</h2>
-    <p>Una <b>Qidi Plus4</b> (la buena, la que aguanta materiales bien chingones para piezas de fábrica) y una <b>Bambu P1S</b> de apoyo (rapidota para lo de diario). Más una de resina pa' las maquetas finas. 🛠️</p>
-    <div class="analogia">Es como tener <b>una troca para el trabajo pesado y un cochecito para el mandado</b> 🚚🚗. Cada una hace lo suyo y no se estorban.</div>
-    <div class="ojo">No vamos a imprimir frenos, ni partes que si fallan alguien se mata, ni copias piratas con logos. Eso es ilegal y pendejo. Nosotros le entramos limpio. 😇</div>
+  <!-- NOMBRE -->
+  <div class="card namebox">
+    <div class="tag t-violet">Paso 0 · Identifícate, criatura</div>
+    <h2>¿Cómo te llamas, obra maestra de la naturaleza? 🦧</h2>
+    <p>Escribe tu nombre para que el insulto sea personalizado (es lo mínimo que mereces):</p>
+    <input id="nombre" placeholder="Tu nombre aquí, pendejo" maxlength="22" autocomplete="off">
+    <div style="margin-top:14px"><button class="btn" onclick="setNombre()">Registrar mi pendejez 📝</button></div>
   </div>
 
-  <div class="paso">
-    <div class="num">6</div>
-    <h2>Resumen para tu cabezota 🥥</h2>
+  <!-- MEDIDOR -->
+  <div class="card">
+    <div class="tag t-pink">Diagnóstico clínico</div>
+    <h3 style="font-size:20px;margin-bottom:6px">📊 Resultados del escaneo cerebral de <span class="nm" style="color:var(--cyan)">tu persona</span></h3>
+    <div class="stat-row">
+      <div class="stat"><div class="n" data-to="97">0</div><div class="l">% Pendejo</div></div>
+      <div class="stat"><div class="n" data-to="1">0</div><div class="l">Neurona activa</div></div>
+      <div class="stat"><div class="n" data-to="404">0</div><div class="l">Cerebro: not found</div></div>
+    </div>
+    <div class="barra"><div id="barpend">97% 🫠</div></div>
+    <p style="margin-top:10px;font-style:italic;color:#9aa">Diagnóstico: operable, pero no vale la pena el quirófano.</p>
+  </div>
+
+  <!-- PASO 1 -->
+  <div class="card">
+    <div class="num-bola">1</div>
+    <div class="tag t-violet">La maquinita</div>
+    <h2>¿Qué chingados es una impresora 3D?</h2>
+    <p>Es una máquina que <b>hace objetos de plástico de la nada</b>, capita sobre capita, hasta formar una pieza completa. No imprime hojas, genio: imprime <b>cosas reales</b> que puedes agarrar con esas manos que solo usas para tirar tu propia comida.</p>
+    <div class="analogia"><b>Piénsalo así:</b> es una <b>pistola de silicón mágica</b> 🔫 que dibuja un muñeco en el aire. O un pastel de mil capas 🎂, pero de plástico y sin que se te caiga la baba.</div>
+    <div class="negro">tu cerebro también se hizo capa por capa... solo que la máquina se quedó sin material a la mitad. 🧱❌</div>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="card">
+    <div class="num-bola">2</div>
+    <div class="tag t-green">El negocio</div>
+    <h2>¿Y qué vamos a vender, <span class="nm">campeón</span>?</h2>
+    <p>Piezas <b>a la medida</b>. La gente trae lo que necesita y se lo hacemos. Como sastre, pero de plástico y sin pincharte el dedo.</p>
     <ul class="lista">
-      <li>Maquinita hace piezas de plástico. ✅</li>
-      <li>Gente las necesita y no las consigue. ✅</li>
-      <li>Se las hacemos aquí, rapidito y a la medida. ✅</li>
-      <li>Material barato, lo vendemos caro = 💰💰💰.</li>
-      <li>Somos los únicos en Cardel = no hay competencia. 👑</li>
+      <li><b>La refacción que ya no venden</b> de tu carcacha (ese cliptecito que truena y no hay ni en el yonke).</li>
+      <li><b>Cosas pa'l estéreo</b> 🔊: cajas de bocinas, soportes, embellecedores. Pa' que tu nave truene aunque tú no entiendas cómo.</li>
+      <li><b>Piezas para fábricas e ingenios</b> 🏭 que tardan un mes en llegar. Nosotros: 2 días.</li>
+      <li><b>Prototipos y maquetas</b> pa' arquitectos y diseñadores (gente que sí terminó la escuela).</li>
     </ul>
-    <p class="grandote">¿Ya? ¿O necesitas que te lo explique otra vez con plastilina y un títere? 🧸</p>
+    <div class="analogia"><b>Es como</b> un <b>OXXO de piezas</b> 🏪 que en vez de tenerlas en el estante, las fabrica al momento. ¿Captas o le pongo subtítulos?</div>
   </div>
 
+  <!-- PASO 3 -->
+  <div class="card">
+    <div class="num-bola">3</div>
+    <div class="tag t-amber">El varo 💸</div>
+    <h2>¿Cómo ganamos lana? (la parte que sí te despierta)</h2>
+    <ul class="lista">
+      <li>El cliente llega con <b>un dibujo, foto o la pieza rota</b>. 📸</li>
+      <li>La dibujamos en la compu (eso lo hago yo, tú no toques nada). 💻</li>
+      <li>La impresora la imprime sola mientras nos echamos unos tacos. 🌮</li>
+      <li>El cliente paga. Nosotros contamos billetes. Tú aprendes a contar. 💵</li>
+    </ul>
+    <div class="analogia"><b>Es como</b> vender <b>agua de limón</b> 🍋: el limón cuesta nada, el vaso lo vendes a 15 varos. Aquí igual, pero con plástico.</div>
+    <div class="negro">el margen de ganancia es más alto que tus probabilidades de pasar un examen. 📉</div>
+  </div>
+
+  <!-- PASO 4 -->
+  <div class="card">
+    <div class="num-bola">4</div>
+    <div class="tag t-pink">Por qué sí jala</div>
+    <h2>¿Por qué NO es una pendejada (a diferencia de ti)?</h2>
+    <p>Porque <b>en Cardel NO hay NADIE más que haga esto</b>. Cero competencia. 🦗</p>
+    <p>La gente tiene que irse hasta <b>Veracruz o Xalapa</b> (1-2 horas 🚗) por una pieza. Nosotros se la hacemos <b>aquí</b> y rapidito.</p>
+    <div class="analogia"><b>Es como</b> ser <b>el único taco en una colonia muerta de hambre</b> 🌮👀.</div>
+    <div class="negro">somos el único negocio del pueblo que no depende de que tú entiendas algo. Por eso va a funcionar. 🙏</div>
+  </div>
+
+  <!-- TEST -->
+  <div class="card">
+    <div class="num-bola">5</div>
+    <div class="tag t-violet">Examen oficial</div>
+    <h2>🧪 Test de Pendejez Certificado™</h2>
+    <p>Contesta para saber tu nivel (spoiler: ya lo sabemos, pero tú diviértete).</p>
+    <div id="qbox"></div>
+    <div id="qprog" class="mono" style="margin-top:10px;color:#9aa"></div>
+  </div>
+
+  <!-- CERTIFICADO -->
+  <div class="card" style="background:none;border:none;box-shadow:none;padding:0">
+    <div id="cert">
+      <h3>🏆 CERTIFICADO OFICIAL DE PENDEJO 🏆</h3>
+      <p style="color:#cbb6ff">Por la presente se reconoce solemnemente a:</p>
+      <div class="nom" id="certNom">PENDEJO ANÓNIMO</div>
+      <p style="color:#e7defc">como portador legítimo y vitalicio del título de <b>PENDEJO CERTIFICADO</b>, con honores, mención cruel y sin posibilidad de apelación.</p>
+      <div class="foot">Folio: <span id="folio">PND-000000</span> · Expedido: <span id="fecha">hoy</span> · Válido hasta: la eternidad</div>
+      <div class="sello">SELLO<br>OFICIAL<br>🤡</div>
+    </div>
+  </div>
+
+  <!-- CIERRE -->
   <div class="cierre">
-    <h2>YA ESTUVO, COMPA 🎤⬇️</h2>
+    <h2>YA ESTUVO, <span class="nm">COMPA</span> 🎤⬇️</h2>
     <p>Si después de TODO esto sigues sin entenderle...</p>
-    <p>...entonces sí, carnal, no hay impresora 3D que imprima lo que te falta. 💀😂</p>
-    <p class="emoji-grande">🖨️🤝🤡</p>
-    <p class="firma">— Con cariño y un chingo de paciencia, tu socio que SÍ entiende el negocio.</p>
+    <p>...no hay impresora 3D que imprima lo que te falta, carnal. 💀😂</p>
+    <div style="margin:18px 0"><button class="btn" onclick="fiesta()">🎉 Acepto que soy pendejo</button></div>
+    <p style="color:var(--orange);font-family:'Fredoka'">— Con cariño y un chingo de paciencia, tu socio que SÍ entiende el negocio.</p>
   </div>
 
-  <p class="mini">Hecho con puro amor y bullying sano. El negocio va en serio aunque esta página no. 🖨️</p>
-
+  <p class="mini">Hecho con puro amor y bullying sano. El negocio va MUY en serio aunque esta página no. 🖨️ · Impresión 3D · Cd. Cardel, Veracruz</p>
 </div>
+
+<script>
+// ===== utilidades de sonido (Web Audio, sin archivos) =====
+let actx;
+function beep(freq=440,dur=.08,type='square',vol=.05){
+  try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type=type; o.frequency.value=freq; g.gain.value=vol;
+    o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime+dur);
+  }catch(e){}
+}
+function trombon(){ // "wah wah" de derrota
+  const f=[330,294,262,196];
+  f.forEach((x,i)=>setTimeout(()=>beep(x,.18,'sawtooth',.06),i*180));
+}
+
+// ===== LOADER =====
+const frases=["Buscando neuronas...","Neurona encontrada: 1","Verificando si respira...","Confirmado: respira (a veces)","Calculando nivel de pendejez...","Resultado: crítico 🫠","Cargando insultos personalizados..."];
+let lp=0; const lb=document.querySelector('#loadbar>div'), lt=document.getElementById('loadtxt');
+const li=setInterval(()=>{ lp+=Math.random()*16+6; if(lp>100)lp=100; lb.style.width=lp+'%';
+  lt.textContent=frases[Math.min(frases.length-1,Math.floor(lp/100*frases.length))];
+  if(lp>=100){ clearInterval(li); setTimeout(()=>{ const L=document.getElementById('loader'); L.style.opacity=0; setTimeout(()=>L.style.display='none',600); typewriter(); animar(); }, 450); }
+},260);
+
+// ===== Typewriter =====
+function typewriter(){
+  const t="> sujeto detectado. iniciando humillación educativa..._";
+  const el=document.getElementById('typed'); let i=0;
+  (function tick(){ el.textContent=t.slice(0,i); if(i++<t.length) setTimeout(tick,38); })();
+}
+
+// ===== Animar números y barra =====
+function animar(){
+  document.querySelectorAll('.stat .n').forEach(el=>{
+    const to=+el.dataset.to; let n=0; const step=Math.max(1,Math.round(to/45));
+    const iv=setInterval(()=>{ n+=step; if(n>=to){n=to; clearInterval(iv);} el.textContent=n; },28);
+  });
+  setTimeout(()=>{ document.getElementById('barpend').parentElement.querySelector('div').style.width='97%'; },300);
+}
+
+// ===== Nombre =====
+let NOMBRE="";
+function setNombre(){
+  const v=document.getElementById('nombre').value.trim();
+  NOMBRE = v || "Pendejo Anónimo";
+  document.querySelectorAll('.nm').forEach(e=>e.textContent=NOMBRE);
+  document.getElementById('certNom').textContent = NOMBRE.toUpperCase();
+  beep(660,.1); beep(880,.1);
+  alert("Registrado: "+NOMBRE+". Tu pendejez ahora es oficial y rastreable. 📡");
+}
+
+// ===== Test =====
+const Q=[
+  {q:"¿Para qué sirve una impresora 3D?", a:[
+    {t:"Para hacer piezas de plástico a la medida ✅", ok:true},
+    {t:"Para imprimir mis calificaciones (todas reprobadas)", ok:false},
+    {t:"¿Se come?", ok:false}]},
+  {q:"¿Cómo ganamos dinero?", a:[
+    {t:"Vendiendo piezas: material barato, precio bueno ✅", ok:true},
+    {t:"Pidiéndole prestado a tu mamá otra vez", ok:false},
+    {t:"No sé, por eso pregunto", ok:false}]},
+  {q:"¿Por qué el negocio jala en Cardel?", a:[
+    {t:"Porque no hay nadie más que lo haga ✅", ok:true},
+    {t:"Porque yo le voy a echar ganas (mentira)", ok:false},
+    {t:"¿Cardel tiene negocios?", ok:false}]}
+];
+let qi=0, aciertos=0;
+function pintaQ(){
+  const box=document.getElementById('qbox'), prog=document.getElementById('qprog');
+  if(qi>=Q.length){ resultadoTest(); return; }
+  const it=Q[qi];
+  box.innerHTML="<p style='font-weight:700;font-size:17px;margin-bottom:8px'>"+(qi+1)+". "+it.q+"</p>"+
+    it.a.map((o,k)=>"<button class='opt' onclick='resp("+k+")'>"+o.t+"</button>").join("");
+  prog.textContent="Pregunta "+(qi+1)+" de "+Q.length;
+}
+function resp(k){
+  const ok=Q[qi].a[k].ok;
+  if(ok){ aciertos++; beep(880,.09); beep(1100,.09); } else { trombon(); }
+  qi++; pintaQ();
+}
+function resultadoTest(){
+  const box=document.getElementById('qbox'), prog=document.getElementById('qprog');
+  let msg;
+  if(aciertos===3) msg="😱 ¡"+aciertos+"/3! ¿Quién te sopló? Imposible que entendieras solo. Aun así: certificado abajo. 👇";
+  else if(aciertos===2) msg="😐 "+aciertos+"/3. Casi pareces persona funcional. Casi. 👇";
+  else msg="💀 "+aciertos+"/3. Felicidades, superaste nuestras peores expectativas (hacia abajo). 👇";
+  box.innerHTML="<p style='font-weight:700;font-size:17px'>"+msg+"</p>";
+  prog.textContent="";
+  // generar certificado
+  const cert=document.getElementById('cert'); cert.style.display='block';
+  document.getElementById('certNom').textContent=(NOMBRE||"Pendejo Anónimo").toUpperCase();
+  const f="PND-"+String(Math.floor(Math.random()*900000)+100000);
+  document.getElementById('folio').textContent=f;
+  const d=new Date(); document.getElementById('fecha').textContent=d.toLocaleDateString('es-MX');
+  cert.scrollIntoView({behavior:'smooth'});
+  setTimeout(fiesta,500);
+}
+
+// ===== Confeti =====
+const cc=document.getElementById('confeti'), ctx=cc.getContext('2d'); let parts=[];
+function size(){ cc.width=innerWidth; cc.height=innerHeight; } size(); addEventListener('resize',size);
+function fiesta(){
+  beep(523,.1); beep(659,.1); beep(784,.12);
+  const emo=["💀","🤡","🖨️","💩","🧠","🎉","☠️","🤓"];
+  for(let i=0;i<90;i++) parts.push({x:Math.random()*cc.width,y:-20,vy:Math.random()*3+2,vx:Math.random()*2-1,r:Math.random()*360,e:emo[Math.floor(Math.random()*emo.length)],s:Math.random()*14+14});
+}
+(function loop(){ ctx.clearRect(0,0,cc.width,cc.height);
+  parts.forEach(p=>{ p.y+=p.vy; p.x+=p.vx; p.r+=4; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r*Math.PI/180); ctx.font=p.s+"px serif"; ctx.fillText(p.e,0,0); ctx.restore(); });
+  parts=parts.filter(p=>p.y<cc.height+30); requestAnimationFrame(loop);
+})();
+
+// ===== Fondo de puntitos =====
+const bg=document.getElementById('bg'), bx=bg.getContext('2d'); let dots=[];
+function bsize(){ bg.width=innerWidth; bg.height=innerHeight; dots=Array.from({length:46},()=>({x:Math.random()*bg.width,y:Math.random()*bg.height,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4})); }
+bsize(); addEventListener('resize',bsize);
+(function bloop(){ bx.clearRect(0,0,bg.width,bg.height); bx.fillStyle="rgba(168,85,247,.5)";
+  dots.forEach(d=>{ d.x+=d.vx; d.y+=d.vy; if(d.x<0||d.x>bg.width)d.vx*=-1; if(d.y<0||d.y>bg.height)d.vy*=-1; bx.beginPath(); bx.arc(d.x,d.y,1.6,0,7); bx.fill(); });
+  requestAnimationFrame(bloop);
+})();
+
+// arrancar test al cargar
+window.addEventListener('load',()=>{ pintaQ(); });
+</script>
 </body>
 </html>
