@@ -6,7 +6,6 @@
   <title>Dossier de Inteligencia Forense: Armas 3D y Ecosistema Criminal</title>
   <link rel="stylesheet" href="forensic.css">
   <style>
-    /* Estilos extra para el Roadmap */
     .roadmap-container { display: flex; flex-direction: column; gap: 20px; position: relative; padding-left: 40px; }
     .roadmap-container::before { content: ""; position: absolute; left: 15px; top: 0; bottom: 0; width: 4px; background: linear-gradient(to bottom, var(--accent-cyan), var(--accent-red)); border-radius: 4px; }
     .roadmap-node { background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.05); padding: 25px; border-radius: 8px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: transform 0.3s ease; }
@@ -25,7 +24,7 @@
     <div class="container hero-content">
       <span class="badge red">TOP SECRET // CLEARANCE: ALPHA</span>
       <h1>La Asimetría del Polímero</h1>
-      <p class="mono text-cyan">> REPORTE_FORENSE_V2.0.6<br>> ANALIZANDO_AMENAZA: MANUFACTURA_HÍBRIDA_3D</p>
+      <p class="mono text-cyan">> REPORTE_FORENSE_V2.1.0<br>> ANALIZANDO_AMENAZA: MANUFACTURA_HÍBRIDA_3D</p>
       <p>Análisis de inteligencia sobre cómo la fusión de la impresión 3D, el Mecanizado Electroquímico (ECM) y el vacío legal de los componentes de doble uso están reescribiendo la logística del mercado negro armamentístico.</p>
     </div>
   </header>
@@ -119,32 +118,69 @@
     <div class="container reveal">
       <span class="badge red">PROYECCIÓN ESTRATÉGICA VERIFICADA</span>
       <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 20px;">Roadmap de Escalabilidad: De Cero a "Fábrica Clandestina"</h2>
-      <p style="text-align: center; color: var(--text-muted); max-width: 800px; margin: 0 auto 50px;">Cómo las organizaciones criminales (basado en incautaciones reales en Europa y Myanmar) escalan el flujo de 7 días hacia una operación industrial indetectable.</p>
+      <p style="text-align: center; color: var(--text-muted); max-width: 800px; margin: 0 auto 50px;">Cómo las organizaciones criminales aplican estándares de control de calidad industrial para escalar su logística de forma indetectable.</p>
       
       <div style="max-width: 900px; margin: 0 auto;" class="roadmap-container">
         
+        <!-- FASE 1 -->
         <div class="roadmap-node">
+          <img src="assets/phase1.png" alt="Espacio de trabajo clandestino Fase 1" class="roadmap-img">
           <span class="phase-tag">FASE 1: CELULA DE PRUEBA (EL GARAJE)</span>
-          <h3 style="margin-bottom: 10px;">Validación de Concepto (Inversión: $500 USD)</h3>
-          <p class="text-muted" style="margin-bottom: 10px;">Un solo individuo calibra los parámetros de software (Slicing) y realiza una prueba de fuego remota (activando el arma con una cuerda a distancia). Se establece la viabilidad de la munición casera o recargada. <strong>Evidencia:</strong> Documentado en múltiples arrestos de "lobos solitarios" en la UE (2019-2022).</p>
+          <h3 style="margin-bottom: 10px;">Validación de Concepto y Calibración (Inversión: $500 USD)</h3>
+          <p class="text-muted" style="margin-bottom: 10px;">Un solo individuo opera en aislamiento. La meta no es producir en masa, sino dominar la ciencia de materiales y asimilar la lectura de planos.</p>
+          <div class="panel" style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.5);">
+            <strong class="text-cyan">QA & ESTÁNDARES DE CALIDAD:</strong><br>
+            <ul style="color: var(--text-muted); padding-left: 20px; font-size: 0.95rem;">
+              <li><strong>Calibración Dimensional:</strong> Uso de calibradores Vernier digitales para asegurar que la "Cama de Impresión" mantenga tolerancias menores a 0.1mm (crucial para que las piezas encajen).</li>
+              <li><strong>Prueba de Extrusión (Temp Towers):</strong> Pruebas destructivas de temperatura para hallar el punto exacto donde el filamento PLA+ tiene mejor adherencia de capa (generalmente 215°C).</li>
+              <li><strong>Headspace Gauges:</strong> Utilizan herramientas de medición para calibrar el "Headspace" (el espacio entre el cerrojo y el cañón) asegurando que el arma no explote en la primera prueba remota.</li>
+            </ul>
+          </div>
         </div>
 
+        <!-- FASE 2 -->
         <div class="roadmap-node">
+          <img src="assets/phase2.png" alt="Balcanización Logística Fase 2" class="roadmap-img">
           <span class="phase-tag">FASE 2: BALCANIZACIÓN LOGÍSTICA</span>
-          <h3 style="margin-bottom: 10px;">Separación de Tareas (Inversión: $3,000 USD)</h3>
-          <p class="text-muted" style="margin-bottom: 10px;">Para evadir allanamientos, se divide la manufactura. <br>• <strong>Nodo A:</strong> Un apartamento residencial opera 5 impresoras (Granja) creando solo plástico. <br>• <strong>Nodo B:</strong> Un taller remoto usa matrices ECM masivas para tallar 10 cañones simultáneamente. <br><strong>Evidencia:</strong> Modus operandi exacto desmantelado en la Operación Carmelo (Tenerife, España).</p>
+          <h3 style="margin-bottom: 10px;">Separación de Tareas y Control Térmico (Inversión: $3,000 USD)</h3>
+          <p class="text-muted" style="margin-bottom: 10px;">Para evadir allanamientos que confisquen el arma entera, se divide la manufactura. Un Nodo imprime plásticos (Granja), otro Nodo distante tornea el metal vía ECM.</p>
+          <div class="panel" style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.5);">
+            <strong class="text-cyan">QA & ESTÁNDARES DE CALIDAD:</strong><br>
+            <ul style="color: var(--text-muted); padding-left: 20px; font-size: 0.95rem;">
+              <li><strong>Annealing (Recocido):</strong> El plástico impreso en el Nodo A se somete a un tratamiento térmico. Se hornea enterrado en yeso a 100°C por horas para fusionar las capas a nivel molecular, <em>triplicando su resistencia térmica</em>.</li>
+              <li><strong>Matriz ECM Escalada:</strong> El Nodo B no hace los cañones de uno en uno. Fabrican "Manifolds" (colectores de tuberías) impulsados por grandes bombas de agua para tallar 10 o 20 cañones de acero simultáneamente con uniformidad industrial.</li>
+            </ul>
+          </div>
         </div>
 
+        <!-- FASE 3 -->
         <div class="roadmap-node">
+          <img src="assets/phase3.png" alt="Blanqueo Financiero Fase 3" class="roadmap-img">
           <span class="phase-tag">FASE 3: BLANQUEO Y ESTRATAGEMA FINANCIERA</span>
-          <h3 style="margin-bottom: 10px;">Empresas Fachada y Criptografía (KYC Bypass)</h3>
-          <p class="text-muted" style="margin-bottom: 10px;">Para comprar 500kg de acero y cientos de bobinas de filamento sin alertar a Hacienda, se crean empresas de "arquitectura" o "mantenimiento industrial" (Factureras). Las tutorías de expertos armeros en la Dark Web se pagan usando <em>Monero</em> (Criptomoneda de privacidad) y Mixers (Tornado Cash), borrando el rastro. <strong>Evidencia:</strong> Reportes de FATF (GAFI) sobre el uso de activos virtuales por extremistas.</p>
+          <h3 style="margin-bottom: 10px;">Empresas Fachada y Criptografía (Inversión: Variable)</h3>
+          <p class="text-muted" style="margin-bottom: 10px;">La célula necesita adquirir toneladas de material sin despertar a la inteligencia financiera (UIF). Evaden los protocolos "KYC" (Conoce a tu Cliente).</p>
+          <div class="panel" style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.5);">
+            <strong class="text-cyan">QA & ESTÁNDARES DE CALIDAD:</strong><br>
+            <ul style="color: var(--text-muted); padding-left: 20px; font-size: 0.95rem;">
+              <li><strong>Limpieza de Cadena Logística:</strong> Creación de "Factureras" (empresas de arquitectura o modelismo) para justificar la importación comercial legal de cientos de bobinas de filamento, epoxis y acero sin costura desde China.</li>
+              <li><strong>Financiación Opaca:</strong> El talento humano (expertos en CAD y armeros) ubicado en foros profundos es contratado y pagado usando la criptomoneda <em>Monero (XMR)</em>, que a diferencia del Bitcoin, oculta matemáticamente el saldo, emisor y receptor de la transacción.</li>
+            </ul>
+          </div>
         </div>
 
+        <!-- FASE 4 -->
         <div class="roadmap-node red-node">
+          <img src="assets/phase4.png" alt="Industria Descentralizada Fase 4" class="roadmap-img">
           <span class="phase-tag">FASE 4: INDUSTRIA COMPLETA DESCENTRALIZADA</span>
           <h3 style="margin-bottom: 10px;">Producción Off-Grid y Distribución Mesh</h3>
-          <p class="text-muted">La fábrica no es un edificio, es una red. Operan con energía solar para evitar picos de consumo eléctrico en la red urbana. Los componentes son transportados por "mulas" usando servicios de paquetería legales (como si fueran repuestos de coche). La coordinación total ocurre en protocolos encriptados sin servidor (ej. Matrix, Meshtastic). <strong>Evidencia Irrefutable:</strong> Fotogramas y documentales de las Fuerzas de Defensa del Pueblo (PDF) en la jungla de Myanmar (2022-2025).</p>
+          <p class="text-muted">La fábrica no es un edificio, es una red de nodos invisibles que ensamblan las armas bajo demanda en el terreno de conflicto.</p>
+          <div class="panel" style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.5); border-left-color: var(--accent-red);">
+            <strong class="text-red">QA & ESTÁNDARES DE CALIDAD:</strong><br>
+            <ul style="color: var(--text-muted); padding-left: 20px; font-size: 0.95rem;">
+              <li><strong>Autonomía Energética:</strong> Operan granjas enteras de impresión impulsadas por páneles solares para evitar anomalías (picos de consumo) en la red eléctrica gubernamental.</li>
+              <li><strong>Distribución Mesh:</strong> El transporte se hace disfrazando los módulos como "repuestos automotrices". La coordinación se ejecuta a través de protocolos cifrados descentralizados (<em>Matrix</em>) y comunicación por radiofrecuencia Mesh (<em>Meshtastic</em>) en áreas donde se inhibe la señal celular.</li>
+            </ul>
+          </div>
         </div>
 
       </div>
@@ -155,9 +191,6 @@
   <section class="section">
     <div class="container">
       <div class="grid-2 reveal">
-        <div>
-          <img src="assets/ecm_process.png" alt="Diagrama técnico del proceso de Mecanizado Electroquímico (ECM)" class="graphic">
-        </div>
         <div>
           <span class="badge">TECNOLOGÍA DISRUPTIVA</span>
           <h2 style="font-size: 2.5rem; margin-bottom: 20px;">El Cuello de Botella: Superando el ECM</h2>
