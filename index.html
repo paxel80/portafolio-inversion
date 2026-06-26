@@ -61,28 +61,34 @@
   #scroll-progress {
     position: fixed;
     top: 0; left: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #818cf8, #c084fc, #f0abfc);
+    height: 3px;
+    background: linear-gradient(90deg, #eab308, #4ade80, #22d3ee);
     z-index: 9999;
     width: 0%;
     transition: width 0.05s linear;
-    box-shadow: 0 0 12px rgba(129,140,248,0.5);
+    box-shadow: 0 0 15px rgba(234,179,8,0.8);
   }
 
-  /* ═══ GRID OVERLAY ═══ */
+  /* ═══ SCANLINES & HALFTONE ═══ */
   .grid-overlay {
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background-image:
-      linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
-    background-size: 60px 60px;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
-    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
-    opacity: 0.6;
-    transition: opacity 0.5s ease;
+    background: 
+      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    opacity: 0.8;
+  }
+  .halftone-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(234,179,8,0.1) 1px, transparent 1.5px);
+    background-size: 20px 20px;
+    opacity: 0.3;
   }
 
   /* ═══ NOISE TEXTURE ═══ */
@@ -91,36 +97,40 @@
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    opacity: 0.012;
+    opacity: 0.03;
   }
 
-  /* ═══ CUSTOM CURSOR (ring + dot + trail) ═══ */
+  /* ═══ MECHA CROSSHAIR CURSOR ═══ */
   .custom-cursor {
     position: fixed;
     top: 0; left: 0;
-    width: 28px; height: 28px;
-    border: 1.5px solid rgba(255,255,255,0.2);
-    border-radius: 50%;
+    width: 40px; height: 40px;
+    border: 1px solid rgba(234,179,8,0.4);
     pointer-events: none;
     z-index: 10000;
     transform: translate3d(-100px,-100px,0);
-    transition: width 0.35s cubic-bezier(0.16,1,0.3,1),
-                height 0.35s cubic-bezier(0.16,1,0.3,1),
-                background-color 0.35s cubic-bezier(0.16,1,0.3,1),
-                border-color 0.35s cubic-bezier(0.16,1,0.3,1);
+    transition: width 0.1s, height 0.1s, border-color 0.1s;
     will-change: transform;
+    clip-path: polygon(0 20%, 20% 0, 80% 0, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0 80%);
   }
+  .custom-cursor::before, .custom-cursor::after {
+    content: '';
+    position: absolute;
+    background: rgba(234,179,8,0.6);
+  }
+  .custom-cursor::before { top: 50%; left: -10px; right: -10px; height: 1px; }
+  .custom-cursor::after { left: 50%; top: -10px; bottom: -10px; width: 1px; }
+  
   .cursor-dot {
     position: fixed;
     top: 0; left: 0;
-    width: 5px; height: 5px;
-    background: rgba(129,140,248,0.9);
-    border-radius: 50%;
+    width: 4px; height: 4px;
+    background: #eab308;
     pointer-events: none;
     z-index: 10001;
-    transform: translate3d(-100px,-100px,0);
+    transform: translate3d(-100px,-100px,0) rotate(45deg);
     will-change: transform;
-    box-shadow: 0 0 8px rgba(129,140,248,0.4);
+    box-shadow: 0 0 10px #eab308;
   }
   @media (max-width: 768px) {
     .custom-cursor, .cursor-dot, #mouse-glow { display: none !important; }
@@ -128,35 +138,39 @@
     #particle-canvas { display: none; }
   }
   .custom-cursor.hover {
-    width: 56px; height: 56px;
-    background-color: rgba(255,255,255,0.9);
-    border-color: transparent;
-    mix-blend-mode: difference;
+    width: 50px; height: 50px;
+    border-color: #22d3ee;
+  }
+  .custom-cursor.hover::before, .custom-cursor.hover::after {
+    background: #22d3ee;
   }
 
   /* ═══ CARD SPOTLIGHT + TILT ═══ */
   .spotlight-card {
     position: relative;
     overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     transform-style: preserve-3d;
     perspective: 1000px;
+    border-radius: 0; /* Sharp edges */
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+    border: 1px solid rgba(234,179,8,0.1);
   }
   .spotlight-card::before {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: inherit;
     background: radial-gradient(450px circle at var(--mx,-999px) var(--my,-999px),
-      rgba(129,140,248,0.08), transparent 65%);
+      rgba(234,179,8,0.1), transparent 65%);
     z-index: 0;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.3s ease;
   }
   .spotlight-card:hover::before { opacity: 1; }
   .spotlight-card:hover {
-    border-color: rgba(255,255,255,0.1) !important;
+    border-color: rgba(234,179,8,0.4) !important;
+    box-shadow: inset 0 0 20px rgba(234,179,8,0.1);
   }
 
   /* ═══ SCROLL REVEAL ═══ */
@@ -295,36 +309,43 @@
   </nav>
 </header>
 <main class="max-w-5xl mx-auto px-5 pt-28">
-<section class="relative overflow-hidden rounded-2xl mt-6 reveal" style="border:1px solid rgba(255,255,255,0.03)">
-  <!-- Ambient aurora -->
-  <div class="absolute inset-0" style="background:linear-gradient(135deg, rgba(129,140,248,0.04) 0%, transparent 40%, rgba(192,132,252,0.03) 70%, transparent 100%)"></div>
-  <div class="absolute -right-32 -top-32 w-[500px] h-[500px] rounded-full blur-3xl animate-breathe" data-parallax="0.1" style="background:radial-gradient(circle, rgba(129,140,248,0.06), transparent 70%)"></div>
-  <div class="absolute -left-32 bottom-0 w-96 h-96 rounded-full blur-3xl opacity-50 animate-breathe" data-parallax="-0.05" style="animation-delay:2s;background:radial-gradient(circle, rgba(192,132,252,0.04), transparent 70%)"></div>
+<section class="relative overflow-hidden mt-6 reveal" style="border:1px solid rgba(234,179,8,0.2); background:rgba(5,5,5,0.8); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);">
+  <!-- Ambient Mecha Glow -->
+  <div class="absolute inset-0 scanlines-overlay"></div>
+  <div class="absolute -right-32 -top-32 w-[500px] h-[500px] rounded-full blur-3xl animate-breathe" data-parallax="0.1" style="background:radial-gradient(circle, rgba(234,179,8,0.06), transparent 70%)"></div>
+  <div class="absolute -left-32 bottom-0 w-96 h-96 rounded-full blur-3xl opacity-50 animate-breathe" data-parallax="-0.05" style="animation-delay:2s;background:radial-gradient(circle, rgba(34,211,238,0.04), transparent 70%)"></div>
 
   <div class="relative p-10 md:p-16">
     <!-- Eyebrow -->
-    <div class="inline-flex items-center gap-2 rounded-full py-1.5 px-4 mb-6 reveal delay-1" data-parallax="0.15" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)">
-      <span class="font-mono text-[10px] tracking-[.15em] uppercase text-white/40">◆ 5 oportunidades reales · Veracruz & Campeche</span>
+    <div class="inline-flex items-center gap-2 rounded-sm py-1.5 px-4 mb-6 reveal delay-1" data-parallax="0.15" style="background:rgba(234,179,8,0.05);border-left:4px solid #eab308; border-right:1px solid rgba(234,179,8,0.2); border-top:1px solid rgba(234,179,8,0.2); border-bottom:1px solid rgba(234,179,8,0.2);">
+      <span class="font-mono text-[10px] tracking-widest uppercase text-accent-bright">SYS.LOG // アンチグラビティ // 5 REAL OPS</span>
     </div>
 
     <!-- Title -->
     <h1 class="text-4xl md:text-7xl font-display font-bold tracking-tight leading-[1.05] uppercase reveal delay-2" data-parallax="0.2">
-      <span class="grad-text">Portafolio de</span><br>
-      <span class="grad-text-accent">Inversión</span>
+      <div class="relative inline-block text-white mb-2">
+        <span class="absolute inset-0 text-accent animate-glitch opacity-70" style="animation-delay: -0.1s; left: 2px;">PORTAFOLIO DE</span>
+        <span class="absolute inset-0 text-neon-cyan animate-glitch opacity-70" style="animation-delay: -0.2s; left: -2px;">PORTAFOLIO DE</span>
+        <span class="relative">PORTAFOLIO DE</span>
+      </div><br>
+      <div class="flex items-center gap-4">
+        <span class="text-accent drop-shadow-glow">INVERSIÓN</span>
+        <span class="text-xs font-mono text-neon-cyan/50 tracking-widest mt-6 hidden md:block">投資ポートフォリオ</span>
+      </div>
     </h1>
 
     <!-- Subtitle -->
-    <p class="text-white/30 text-base md:text-lg mt-5 max-w-2xl font-light leading-relaxed reveal delay-3" data-parallax="0.1">Cinco proyectos reales en Veracruz y Campeche, con números honestos (incluido el escenario que puede perder).</p>
+    <p class="text-white/40 text-base md:text-lg mt-5 max-w-2xl font-mono leading-relaxed reveal delay-3" data-parallax="0.1">> Cinco proyectos reales en Veracruz y Campeche, con números honestos (incluido el escenario que puede perder).</p>
 
     <!-- Tags -->
     <div class="mt-7 flex flex-wrap gap-2 reveal delay-4" data-parallax="0.05">
-      <span class="chip magnetic interactive">Corridas financieras</span>
-      <span class="chip magnetic interactive">Escenarios honestos</span>
-      <span class="chip font-mono magnetic interactive">MXN $</span>
+      <span class="chip magnetic interactive" style="border-radius:0; border:1px solid rgba(234,179,8,0.3); background:rgba(234,179,8,0.05); color:#fef08a;">[ CORRIDAS_FINANCIERAS ]</span>
+      <span class="chip magnetic interactive" style="border-radius:0; border:1px solid rgba(34,211,238,0.3); background:rgba(34,211,238,0.05); color:#a5f3fc;">[ ESCENARIOS_HONESTOS ]</span>
+      <span class="chip font-mono magnetic interactive" style="border-radius:0; border:1px solid rgba(192,132,252,0.3); background:rgba(192,132,252,0.05); color:#e9d5ff;">[ MXN_$ ]</span>
     </div>
 
     <!-- Shimmer line -->
-    <div class="shimmer-line mt-10 rounded-full reveal delay-5"></div>
+    <div class="mt-10 h-px bg-gradient-to-r from-accent via-neon-cyan to-transparent opacity-50 reveal delay-5"></div>
   </div>
 </section>
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
@@ -361,142 +382,149 @@
 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
 <a href="html/agtech-cultivo-ia.html" class="group spotlight-card project-card card overflow-hidden flex flex-col justify-between min-h-[360px] reveal delay-1 magnetic interactive">
   <div class="relative z-10">
-    <!-- Gradient header -->
-    <div class="relative h-24 overflow-hidden rounded-t-xl -mx-px -mt-px">
-      <div class="card-gradient absolute inset-0 bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 opacity-80"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 via-transparent to-transparent"></div>
+    <!-- Header -->
+    <div class="relative h-24 overflow-hidden -mx-px -mt-px border-b border-white/5" style="background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);">
+      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 to-transparent"></div>
+      <div class="absolute top-3 right-4 font-mono text-[10px] text-white/20">FILE_NO.01</div>
       <div class="absolute bottom-3 left-5 text-4xl drop-shadow-lg">🌱</div>
     </div>
 
     <!-- Body -->
     <div class="p-5 pt-4">
-      <span class="badge b-yellow">🟡 Proyecto nuevo</span>
-      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent-bright transition-colors duration-300">AgTech: Cultivo de Precisión con IA</h3>
-      <p class="text-xs text-white/25 mt-2 line-clamp-2 leading-relaxed">Sistema de sensores + IA que controla clima, riego y detecta plagas en agricultura protegida legal (tomate, fresa, lechuga). Mercado virgen en Veracruz.</p>
+      <span class="inline-block px-2 py-1 text-[9px] font-mono tracking-widest uppercase border" style="border-color:#34d39940; color:#34d399; background:#34d39910">🟡 Proyecto nuevo</span>
+      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent transition-colors duration-300">AgTech: Cultivo de Precisión con IA</h3>
+      <p class="text-[10px] font-mono text-neon-cyan/40 mt-1 uppercase">データログ</p>
+      <p class="text-xs text-white/25 mt-2 line-clamp-2 font-mono leading-relaxed">Sistema de sensores + IA que controla clima, riego y detecta plagas en agricultura protegida legal (tomate, fresa, lechuga). Mercado virgen en Veracruz.</p>
     </div>
   </div>
 
   <!-- Footer -->
   <div class="p-5 pt-0 relative z-10">
     <div class="grid grid-cols-2 gap-2 mb-4"><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Inversión (MXN)</div><div class="font-display font-bold text-white text-sm mt-0.5">$111,100</div></div><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">TIR anual (base)</div><div class="font-display font-bold text-white text-sm mt-0.5">108%</div></div></div>
-    <div class="flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#34d399">
-      <span>Explorar</span>
-      <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+    <div class="flex items-center justify-between text-[11px] font-mono tracking-widest uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#34d399">
+      <span>>>> ACCESS_LOG</span>
+      <span class="opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">_</span>
     </div>
   </div>
 </a>
 <a href="html/impresion-3d.html" class="group spotlight-card project-card card overflow-hidden flex flex-col justify-between min-h-[360px] reveal delay-2 magnetic interactive">
   <div class="relative z-10">
-    <!-- Gradient header -->
-    <div class="relative h-24 overflow-hidden rounded-t-xl -mx-px -mt-px">
-      <div class="card-gradient absolute inset-0 bg-gradient-to-br from-indigo-400 via-violet-500 to-purple-600 opacity-80"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 via-transparent to-transparent"></div>
+    <!-- Header -->
+    <div class="relative h-24 overflow-hidden -mx-px -mt-px border-b border-white/5" style="background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);">
+      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 to-transparent"></div>
+      <div class="absolute top-3 right-4 font-mono text-[10px] text-white/20">FILE_NO.02</div>
       <div class="absolute bottom-3 left-5 text-4xl drop-shadow-lg">🖨️</div>
     </div>
 
     <!-- Body -->
     <div class="p-5 pt-4">
-      <span class="badge b-green">🟢 Listo para presentar</span>
-      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent-bright transition-colors duration-300">Impresión 3D Cardel</h3>
-      <p class="text-xs text-white/25 mt-2 line-clamp-2 leading-relaxed">Servicio de impresión 3D para prototipos y piezas a la medida (B2B) en Ciudad Cardel — el único en el municipio.</p>
+      <span class="inline-block px-2 py-1 text-[9px] font-mono tracking-widest uppercase border" style="border-color:#818cf840; color:#818cf8; background:#818cf810">🟢 Listo para presentar</span>
+      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent transition-colors duration-300">Impresión 3D Cardel</h3>
+      <p class="text-[10px] font-mono text-neon-cyan/40 mt-1 uppercase">データログ</p>
+      <p class="text-xs text-white/25 mt-2 line-clamp-2 font-mono leading-relaxed">Servicio de impresión 3D para prototipos y piezas a la medida (B2B) en Ciudad Cardel — el único en el municipio.</p>
     </div>
   </div>
 
   <!-- Footer -->
   <div class="p-5 pt-0 relative z-10">
     <div class="grid grid-cols-2 gap-2 mb-4"><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Inversión (MXN)</div><div class="font-display font-bold text-white text-sm mt-0.5">$231,000</div></div><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">TIR anual (base)</div><div class="font-display font-bold text-white text-sm mt-0.5">131%</div></div></div>
-    <div class="flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#818cf8">
-      <span>Explorar</span>
-      <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+    <div class="flex items-center justify-between text-[11px] font-mono tracking-widest uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#818cf8">
+      <span>>>> ACCESS_LOG</span>
+      <span class="opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">_</span>
     </div>
   </div>
 </a>
 <a href="html/mercadito.html" class="group spotlight-card project-card card overflow-hidden flex flex-col justify-between min-h-[360px] reveal delay-3 magnetic interactive">
   <div class="relative z-10">
-    <!-- Gradient header -->
-    <div class="relative h-24 overflow-hidden rounded-t-xl -mx-px -mt-px">
-      <div class="card-gradient absolute inset-0 bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 opacity-80"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 via-transparent to-transparent"></div>
+    <!-- Header -->
+    <div class="relative h-24 overflow-hidden -mx-px -mt-px border-b border-white/5" style="background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);">
+      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 to-transparent"></div>
+      <div class="absolute top-3 right-4 font-mono text-[10px] text-white/20">FILE_NO.03</div>
       <div class="absolute bottom-3 left-5 text-4xl drop-shadow-lg">🥤</div>
     </div>
 
     <!-- Body -->
     <div class="p-5 pt-4">
-      <span class="badge b-yellow">🟡 Listo (falta validar demanda)</span>
-      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent-bright transition-colors duration-300">Mercadito Fin de Semana</h3>
-      <p class="text-xs text-white/25 mt-2 line-clamp-2 leading-relaxed">Puesto de bebidas frías y antojitos junto al baño de un tianguis nuevo, con agua propia de purificadora.</p>
+      <span class="inline-block px-2 py-1 text-[9px] font-mono tracking-widest uppercase border" style="border-color:#fb923c40; color:#fb923c; background:#fb923c10">🟡 Listo (falta validar demanda)</span>
+      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent transition-colors duration-300">Mercadito Fin de Semana</h3>
+      <p class="text-[10px] font-mono text-neon-cyan/40 mt-1 uppercase">データログ</p>
+      <p class="text-xs text-white/25 mt-2 line-clamp-2 font-mono leading-relaxed">Puesto de bebidas frías y antojitos junto al baño de un tianguis nuevo, con agua propia de purificadora.</p>
     </div>
   </div>
 
   <!-- Footer -->
   <div class="p-5 pt-0 relative z-10">
     <div class="grid grid-cols-2 gap-2 mb-4"><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Inversión (MXN)</div><div class="font-display font-bold text-white text-sm mt-0.5">$5,900</div></div><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Ganancia (base)</div><div class="font-display font-bold text-white text-sm mt-0.5">$3,469/mes</div></div></div>
-    <div class="flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#fb923c">
-      <span>Explorar</span>
-      <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+    <div class="flex items-center justify-between text-[11px] font-mono tracking-widest uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#fb923c">
+      <span>>>> ACCESS_LOG</span>
+      <span class="opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">_</span>
     </div>
   </div>
 </a>
 <a href="html/taller-motos.html" class="group spotlight-card project-card card overflow-hidden flex flex-col justify-between min-h-[360px] reveal delay-4 magnetic interactive">
   <div class="relative z-10">
-    <!-- Gradient header -->
-    <div class="relative h-24 overflow-hidden rounded-t-xl -mx-px -mt-px">
-      <div class="card-gradient absolute inset-0 bg-gradient-to-br from-fuchsia-400 via-pink-500 to-rose-600 opacity-80"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 via-transparent to-transparent"></div>
+    <!-- Header -->
+    <div class="relative h-24 overflow-hidden -mx-px -mt-px border-b border-white/5" style="background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);">
+      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 to-transparent"></div>
+      <div class="absolute top-3 right-4 font-mono text-[10px] text-white/20">FILE_NO.04</div>
       <div class="absolute bottom-3 left-5 text-4xl drop-shadow-lg">🏍️</div>
     </div>
 
     <!-- Body -->
     <div class="p-5 pt-4">
-      <span class="badge b-yellow">🟡 Proyecto nuevo</span>
-      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent-bright transition-colors duration-300">Taller de Motos con Convenios</h3>
-      <p class="text-xs text-white/25 mt-2 line-clamp-2 leading-relaxed">Taller de mantenimiento de motos en Cardel, con ingreso recurrente vía convenios con flotas de reparto y renting.</p>
+      <span class="inline-block px-2 py-1 text-[9px] font-mono tracking-widest uppercase border" style="border-color:#f0abfc40; color:#f0abfc; background:#f0abfc10">🟡 Proyecto nuevo</span>
+      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent transition-colors duration-300">Taller de Motos con Convenios</h3>
+      <p class="text-[10px] font-mono text-neon-cyan/40 mt-1 uppercase">データログ</p>
+      <p class="text-xs text-white/25 mt-2 line-clamp-2 font-mono leading-relaxed">Taller de mantenimiento de motos en Cardel, con ingreso recurrente vía convenios con flotas de reparto y renting.</p>
     </div>
   </div>
 
   <!-- Footer -->
   <div class="p-5 pt-0 relative z-10">
     <div class="grid grid-cols-2 gap-2 mb-4"><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Inversión (MXN)</div><div class="font-display font-bold text-white text-sm mt-0.5">$146,300</div></div><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">TIR anual (base)</div><div class="font-display font-bold text-white text-sm mt-0.5">36%</div></div></div>
-    <div class="flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#f0abfc">
-      <span>Explorar</span>
-      <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+    <div class="flex items-center justify-between text-[11px] font-mono tracking-widest uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#f0abfc">
+      <span>>>> ACCESS_LOG</span>
+      <span class="opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">_</span>
     </div>
   </div>
 </a>
 <a href="html/acuicola.html" class="group spotlight-card project-card card overflow-hidden flex flex-col justify-between min-h-[360px] reveal delay-5 magnetic interactive">
   <div class="relative z-10">
-    <!-- Gradient header -->
-    <div class="relative h-24 overflow-hidden rounded-t-xl -mx-px -mt-px">
-      <div class="card-gradient absolute inset-0 bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-600 opacity-80"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 via-transparent to-transparent"></div>
+    <!-- Header -->
+    <div class="relative h-24 overflow-hidden -mx-px -mt-px border-b border-white/5" style="background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);">
+      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 to-transparent"></div>
+      <div class="absolute top-3 right-4 font-mono text-[10px] text-white/20">FILE_NO.05</div>
       <div class="absolute bottom-3 left-5 text-4xl drop-shadow-lg">🐟</div>
     </div>
 
     <!-- Body -->
     <div class="p-5 pt-4">
-      <span class="badge b-red">🔴 Preliminar (resolver permisos)</span>
-      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent-bright transition-colors duration-300">Acuícola Lomas de San Román</h3>
-      <p class="text-xs text-white/25 mt-2 line-clamp-2 leading-relaxed">Granja de peces ya construida (7 estanques, 67,000 m² de agua) en Campeche. Corrida preliminar.</p>
+      <span class="inline-block px-2 py-1 text-[9px] font-mono tracking-widest uppercase border" style="border-color:#22d3ee40; color:#22d3ee; background:#22d3ee10">🔴 Preliminar (resolver permisos)</span>
+      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent transition-colors duration-300">Acuícola Lomas de San Román</h3>
+      <p class="text-[10px] font-mono text-neon-cyan/40 mt-1 uppercase">データログ</p>
+      <p class="text-xs text-white/25 mt-2 line-clamp-2 font-mono leading-relaxed">Granja de peces ya construida (7 estanques, 67,000 m² de agua) en Campeche. Corrida preliminar.</p>
     </div>
   </div>
 
   <!-- Footer -->
   <div class="p-5 pt-0 relative z-10">
     <div class="grid grid-cols-2 gap-2 mb-4"><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Inversión estimada (MXN)</div><div class="font-display font-bold text-white text-sm mt-0.5">$704,000</div></div><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">TIR anual (base)</div><div class="font-display font-bold text-white text-sm mt-0.5">17%</div></div></div>
-    <div class="flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#22d3ee">
-      <span>Explorar</span>
-      <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+    <div class="flex items-center justify-between text-[11px] font-mono tracking-widest uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#22d3ee">
+      <span>>>> ACCESS_LOG</span>
+      <span class="opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">_</span>
     </div>
   </div>
 </a>
 </div>
-<section class="relative overflow-hidden rounded-2xl mt-16 p-10 md:p-14 text-center reveal" style="border:1px solid rgba(255,255,255,0.03)">
-  <div class="absolute inset-0" style="background:linear-gradient(135deg, rgba(129,140,248,0.03), transparent 50%, rgba(192,132,252,0.02))"></div>
+<section class="relative overflow-hidden mt-16 p-10 md:p-14 text-center reveal" style="border:1px solid rgba(234,179,8,0.2); background:rgba(5,5,5,0.8); clip-path: polygon(0 20px, 20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);">
+  <div class="absolute inset-0 scanlines-overlay"></div>
+  <div class="absolute inset-0" style="background:linear-gradient(135deg, rgba(234,179,8,0.03), transparent 50%, rgba(34,211,238,0.02))"></div>
   <div class="relative">
-    <h2 class="text-2xl md:text-3xl font-display font-bold text-white">¿Te interesa alguno?</h2>
-    <p class="text-white/30 mt-3 max-w-lg mx-auto text-sm leading-relaxed">Cada proyecto tiene su corrida financiera completa y honesta — incluido el escenario que puede perder.</p>
-    <div class="section-divider my-6 max-w-xs mx-auto"></div>
-    <p class="text-white/40 text-sm"><span class="text-white font-semibold">Erik Hernández</span> · <span class="font-mono">erikjosehernandez@gmail.com</span></p>
+    <div class="font-mono text-neon-cyan/50 text-[10px] uppercase tracking-widest mb-3">SYSTEM.PROMPT // コンタクト</div>
+    <h2 class="text-2xl md:text-3xl font-display font-bold text-white uppercase tracking-tight">[ ¿TE_INTERESA_ALGUNO? ]</h2>
+    <p class="text-white/40 mt-3 max-w-lg mx-auto text-sm font-mono leading-relaxed">> Cada proyecto tiene su corrida financiera completa y honesta — incluido el escenario que puede perder.</p>
+    <div class="my-6 max-w-xs mx-auto h-px bg-gradient-to-r from-transparent via-accent to-transparent"></div>
+    <p class="text-white/50 text-sm font-mono"><span class="text-accent font-bold">Erik Hernández</span> // <span>erikjosehernandez@gmail.com</span></p>
   </div>
 </section>
 </main>
@@ -586,12 +614,10 @@
           if (p.y < -10) p.y = H + 10;
           if (p.y > H + 10) p.y = -10;
 
-          // Draw particle
+          // Draw particle (Square block)
           const alpha = p.baseAlpha * (0.6 + 0.4 * Math.sin(Date.now() * 0.001 + i));
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(129,140,248,${alpha.toFixed(3)})`;
-          ctx.fill();
+          ctx.fillStyle = `rgba(234,179,8,${alpha.toFixed(3)})`;
+          ctx.fillRect(p.x - p.r, p.y - p.r, p.r*2.5, p.r*2.5);
         }
 
         // Draw connections
@@ -605,7 +631,7 @@
               ctx.beginPath();
               ctx.moveTo(particles[i].x, particles[i].y);
               ctx.lineTo(particles[j].x, particles[j].y);
-              ctx.strokeStyle = `rgba(129,140,248,${a.toFixed(3)})`;
+              ctx.strokeStyle = `rgba(34,211,238,${a.toFixed(3)})`;
               ctx.lineWidth = 0.5;
               ctx.stroke();
             }
@@ -619,12 +645,12 @@
             const dy = particles[i].y - mouseY;
             const d = Math.sqrt(dx*dx + dy*dy);
             if (d < MOUSE_RADIUS) {
-              const a = (1 - d / MOUSE_RADIUS) * 0.2;
+              const a = (1 - d / MOUSE_RADIUS) * 0.3;
               ctx.beginPath();
               ctx.moveTo(particles[i].x, particles[i].y);
               ctx.lineTo(mouseX, mouseY);
               ctx.strokeStyle = `rgba(192,132,252,${a.toFixed(3)})`;
-              ctx.lineWidth = 0.6;
+              ctx.lineWidth = 1;
               ctx.stroke();
             }
           }
