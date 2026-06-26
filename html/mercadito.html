@@ -1,258 +1,466 @@
 <!DOCTYPE html><html lang="es"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mercadito Fin de Semana · Inversión</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@700;800;900&display=swap" rel="stylesheet">
+<title>Mercadito Fin de Semana · Inversión</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/tw.css">
 <style>
+  /* ── Base canvas ── */
   body {
     background-color: #070708;
-    background-image: 
-      linear-gradient(to right, rgba(255, 255, 255, 0.012) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
-    background-size: 40px 40px;
     cursor: none;
-    content-visibility: auto;
+    overflow-x: hidden;
   }
+
+  /* ── Blueprint grid overlay ── */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
+  }
+
+  /* ── Aurora ambient light ── */
+  .aurora-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .aurora-bg::before {
+    content: '';
+    position: absolute;
+    width: 140%;
+    height: 140%;
+    top: -30%;
+    left: -20%;
+    background: 
+      radial-gradient(ellipse 600px 400px at 20% 20%, rgba(129,140,248,0.06), transparent 60%),
+      radial-gradient(ellipse 500px 350px at 80% 10%, rgba(192,132,252,0.04), transparent 55%),
+      radial-gradient(ellipse 400px 300px at 60% 80%, rgba(52,211,153,0.03), transparent 50%);
+    animation: aurora 20s ease-in-out infinite;
+    background-size: 200% 200%;
+  }
+
+  /* ── Noise texture ── */
   .noise-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
+    inset: 0;
+    z-index: 1;
     pointer-events: none;
-    opacity: 0.015;
+    opacity: 0.012;
   }
+
+  /* ── Custom cursor ── */
   .custom-cursor {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 32px;
-    height: 32px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    top: 0; left: 0;
+    width: 28px; height: 28px;
+    border: 1.5px solid rgba(255,255,255,0.25);
     border-radius: 50%;
     pointer-events: none;
     z-index: 10000;
-    transform: translate3d(-100px, -100px, 0);
-    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-                height 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-                background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-                border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translate3d(-100px,-100px,0);
+    transition: width 0.35s cubic-bezier(0.16,1,0.3,1),
+                height 0.35s cubic-bezier(0.16,1,0.3,1),
+                background-color 0.35s cubic-bezier(0.16,1,0.3,1),
+                border-color 0.35s cubic-bezier(0.16,1,0.3,1);
     will-change: transform;
-    transform-style: preserve-3d;
+  }
+  .cursor-dot {
+    position: fixed;
+    top: 0; left: 0;
+    width: 4px; height: 4px;
+    background: white;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10001;
+    transform: translate3d(-100px,-100px,0);
+    will-change: transform;
   }
   @media (max-width: 768px) {
-    .custom-cursor { display: none !important; }
+    .custom-cursor, .cursor-dot { display: none !important; }
     body { cursor: auto !important; }
   }
   .custom-cursor.hover {
-    width: 58px;
-    height: 58px;
-    background-color: #ffffff;
+    width: 56px; height: 56px;
+    background-color: rgba(255,255,255,0.9);
     border-color: transparent;
     mix-blend-mode: difference;
   }
-  .bento-card, .project-card, .premium-card, .card {
+
+  /* ── Card spotlight effect ── */
+  .spotlight-card {
     position: relative;
-    background: rgba(13, 13, 15, 0.45);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-radius: 1.5rem;
     overflow: hidden;
-    transition: border-color 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
-                transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    transform-style: preserve-3d;
-    transform: translate3d(0,0,0);
-    will-change: transform;
+    transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
   }
-  .bento-card:hover, .project-card:hover, .premium-card:hover, .card:hover {
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    transform: translateY(-4px) translate3d(0,0,0);
-  }
-  .bento-card::before, .project-card::before, .premium-card::before, .card::before {
+  .spotlight-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 1.5rem;
-    background: radial-gradient(350px circle at var(--mouse-x, -999px) var(--mouse-y, -999px), rgba(139, 92, 246, 0.1), transparent 80%);
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(400px circle at var(--mx,-999px) var(--my,-999px),
+      rgba(129,140,248,0.06), transparent 70%);
     z-index: 0;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.5s ease;
-    will-change: opacity;
   }
-  .bento-card:hover::before, .project-card:hover::before, .premium-card:hover::before, .card:hover::before {
-    opacity: 1;
+  .spotlight-card:hover::before { opacity: 1; }
+  .spotlight-card:hover {
+    border-color: rgba(255,255,255,0.08) !important;
+    transform: translateY(-3px);
   }
+
+  /* ── Scroll reveal ── */
   .reveal {
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(30px);
+    transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1),
+                transform 0.9s cubic-bezier(0.16,1,0.3,1);
   }
   .reveal.active {
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* ── Gradient border ── */
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(129,140,248,0.3), transparent 50%, rgba(192,132,252,0.2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* ── Animated shimmer ── */
+  .shimmer-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(129,140,248,0.3), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  /* ── Number counter animation ── */
+  @keyframes aurora {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ── Stagger delays ── */
+  .delay-1 { transition-delay: 100ms; animation-delay: 100ms; }
+  .delay-2 { transition-delay: 200ms; animation-delay: 200ms; }
+  .delay-3 { transition-delay: 300ms; animation-delay: 300ms; }
+  .delay-4 { transition-delay: 400ms; animation-delay: 400ms; }
+  .delay-5 { transition-delay: 500ms; animation-delay: 500ms; }
+
+  /* ── Project card hover gradient shift ── */
+  .project-card .card-gradient {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .project-card:hover .card-gradient {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+
+  /* ── Horizontal scroll for chips ── */
+  .scroll-chips { scrollbar-width: none; }
+  .scroll-chips::-webkit-scrollbar { display: none; }
 </style>
-</head><body class="min-h-screen text-neutral-200 antialiased overflow-x-hidden selection:bg-white/10 selection:text-white pb-10">
-  <!-- Noise Overlay -->
+</head><body class="min-h-screen antialiased pb-10">
+  <!-- Aurora ambient -->
+  <div class="aurora-bg"></div>
+  <!-- Grid overlay -->
+  <div class="grid-overlay"></div>
+  <!-- Noise texture -->
   <svg class="noise-overlay" xmlns="http://www.w3.org/2000/svg">
-    <filter id="noiseFilter">
-      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
-    </filter>
-    <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
+    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#noise)"/>
   </svg>
-  <!-- Custom Cursor -->
-  <div id="custom-cursor" class="custom-cursor"></div>
-  <header class="fixed top-6 left-0 right-0 z-50 px-4 md:px-8 max-w-6xl mx-auto">
-  <nav class="backdrop-blur-md bg-[#070708]/60 border border-white/5 rounded-full py-3 px-6 flex items-center justify-between shadow-2xl transition-all duration-300 hover:border-white/10">
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-        <span class="font-black text-black text-sm">◆</span>
+  <!-- Cursors -->
+  <div id="cursor-ring" class="custom-cursor"></div>
+  <div id="cursor-dot" class="cursor-dot"></div>
+
+  <div class="relative z-10">
+  <header class="fixed top-0 left-0 right-0 z-50 px-4 pt-5">
+  <nav class="nav-bar max-w-5xl mx-auto backdrop-blur-xl bg-surface-0/50 border border-white/[0.04] rounded-2xl py-2.5 px-5 flex items-center justify-between transition-all duration-500" style="box-shadow:0 8px 40px -12px rgba(0,0,0,.5)">
+    <div class="flex items-center gap-3">
+      <div class="relative w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-glow-sm">
+        <span class="font-display font-bold text-white text-[10px]">EH</span>
       </div>
-      <a href="../index.html" class="font-display font-extrabold text-white text-xs tracking-widest uppercase">Portafolio</a>
+      <a href="../index.html" class="font-display font-bold text-white text-xs tracking-[.15em] uppercase hover:text-accent-bright transition-colors duration-300">Portafolio</a>
     </div>
-    <div class="hidden md:flex items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-white/60">
-      <a href="../index.html" class="hover:text-white transition">Inicio</a>
-      <a href="../index.html#oportunidades" class="hover:text-white transition">Oportunidades</a>
+    <div class="hidden md:flex items-center gap-8 text-[11px] font-semibold tracking-[.12em] uppercase text-white/40">
+      <a href="../index.html" class="hover:text-white transition-colors duration-300 relative group">
+        Inicio
+        <span class="absolute -bottom-1 left-0 w-0 h-px bg-accent group-hover:w-full transition-all duration-300"></span>
+      </a>
+      <a href="../index.html#oportunidades" class="hover:text-white transition-colors duration-300 relative group">
+        Proyectos
+        <span class="absolute -bottom-1 left-0 w-0 h-px bg-accent group-hover:w-full transition-all duration-300"></span>
+      </a>
     </div>
-    <div class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full py-1.5 px-3">
+    <div class="flex items-center gap-2 rounded-full py-1.5 px-3" style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.12)">
       <span class="relative flex h-1.5 w-1.5">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
       </span>
-      <span class="text-[8px] uppercase tracking-wider font-extrabold text-white/80">Online</span>
+      <span class="text-[9px] uppercase tracking-[.15em] font-bold text-emerald-300/80">Live</span>
     </div>
   </nav>
-</header><main class="max-w-5xl mx-auto px-5 pb-16 pt-28"><a href="../index.html" class="inline-block mt-5 text-sm text-slate-400 hover:text-[#f4f4f5] transition">← Portafolio</a><section class="relative overflow-hidden rounded-3xl mt-3 p-8 md:p-12 bg-gradient-to-br from-orange-500 via-rose-500 to-rose-700 shadow-card">
-  <div class="absolute -right-16 -top-16 w-72 h-72 rounded-full bg-white/15 blur-2xl animate-floaty"></div>
+</header>
+<main class="max-w-5xl mx-auto px-5 pb-16 pt-28">
+<a href="../index.html" class="inline-flex items-center gap-2 mt-5 text-sm text-white/25 hover:text-white/60 transition-colors duration-300 group"><svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg><span class="font-mono text-xs tracking-wider uppercase">Portafolio</span></a>
+<section class="relative overflow-hidden rounded-2xl mt-4 reveal" style="border:1px solid rgba(255,255,255,0.04)">
+  <!-- Gradient background -->
+  <div class="absolute inset-0 bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 opacity-80"></div>
+  <div class="absolute inset-0 bg-gradient-to-t from-surface-0/80 via-transparent to-transparent"></div>
+  <!-- Ambient glow -->
+  <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full blur-3xl animate-floaty" style="background:rgba(251,146,60,.12)"></div>
+  <div class="absolute -left-20 bottom-0 w-60 h-60 rounded-full blur-3xl opacity-50" style="background:rgba(251,146,60,.12)"></div>
+  <!-- Content -->
+  <div class="relative p-8 md:p-14">
+    <p class="font-mono text-[11px] tracking-[.2em] uppercase text-white/50">Tianguis nuevo (sáb-dom), Ciudad Cardel, Veracruz</p>
+    <h1 class="text-3xl md:text-5xl font-display font-bold text-white mt-3 leading-[1.1] tracking-tight">🥤 Mercadito Fin de Semana</h1>
+    <p class="text-white/70 text-base mt-4 max-w-2xl leading-relaxed">Puesto de bebidas frías y antojitos junto al baño de un tianguis nuevo, con agua propia de purificadora.</p>
+    <div class="mt-5 flex flex-wrap gap-2"><span class="badge b-yellow">🟡 Listo (falta validar demanda)</span></div>
+  </div>
+</section>
+<div class="-mt-5 relative z-10 px-1"><div class="grid grid-cols-2 md:grid-cols-4 gap-3"><div class="spotlight-card card px-5 py-5 reveal delay-1">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">$5,900</div>
+    <div class="text-[11px] text-white/30 mt-1.5 font-medium tracking-wide uppercase">Inversión (MXN)</div>
+  </div>
+</div><div class="spotlight-card card px-5 py-5 reveal delay-2">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">$3,469/mes</div>
+    <div class="text-[11px] text-white/30 mt-1.5 font-medium tracking-wide uppercase">Ganancia (base)</div>
+  </div>
+</div><div class="spotlight-card card px-5 py-5 reveal delay-3">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">~1.7 meses</div>
+    <div class="text-[11px] text-white/30 mt-1.5 font-medium tracking-wide uppercase">Recuperas</div>
+  </div>
+</div><div class="spotlight-card card px-5 py-5 reveal delay-4">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">58%</div>
+    <div class="text-[11px] text-white/30 mt-1.5 font-medium tracking-wide uppercase">Margen bruto</div>
+  </div>
+</div></div></div>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#fb923c"></span>Resumen ejecutivo
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><p>Un puesto de <b>aguas frescas, raspados, refrescos y antojitos</b> en un mercadito nuevo de fin de semana. Dos ventajas difíciles de copiar: (1) está <b>junto al baño</b> —punto de paso obligado donde se forman filas de gente con calor y sed— y (2) usamos <b>agua propia de purificadora</b>, lo que baja el costo y resuelve la sanidad.</p></div>
+  </div>
+</section>
+
+
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#fb923c"></span>Por qué funciona
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><p>El calor de Veracruz + un punto de paso obligado = compra por impulso. El agua propia sube el margen de las aguas frescas y raspados a 65–75%. Inversión mínima y recuperación muy rápida.</p></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#fb923c"></span>El futuro (Fase 2)
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><p>Más adelante se puede <b>vender agua envasada/garrafón</b> (margen 65–73%), pero solo con los permisos en regla (COFEPRIS, análisis de laboratorio, NOM-201). Se entra a la Fase 2 cuando los papeles estén listos.</p></div>
+  </div>
+</section>
+
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#fb923c"></span>Retorno por escenario
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><div class="grid sm:grid-cols-3 gap-4"><div class="spotlight-card card p-5">
+  <div class="relative z-10">
+    <span class="badge b-red">🔴 Pesimista (25 clientes/día)</span>
+    <div class="text-2xl font-display font-bold text-white mt-3">—</div>
+    <div class="mt-3 space-y-2 text-sm">
+      <div class="flex justify-between items-center"><span class="text-white/30">TIR</span><span class="font-mono font-semibold text-white/70">N/A</span></div>
+      <div class="h-px bg-white/[0.03]"></div>
+      <div class="flex justify-between items-center"><span class="text-white/30">Recuperas</span><span class="font-mono font-semibold text-white/70">Pierde ~$61/mes</span></div>
+    </div>
+  </div>
+</div><div class="spotlight-card card p-5">
+  <div class="relative z-10">
+    <span class="badge b-yellow">🟡 Probable (55 clientes/día)</span>
+    <div class="text-2xl font-display font-bold text-white mt-3">+$3,469/mes</div>
+    <div class="mt-3 space-y-2 text-sm">
+      <div class="flex justify-between items-center"><span class="text-white/30">TIR</span><span class="font-mono font-semibold text-white/70">N/A</span></div>
+      <div class="h-px bg-white/[0.03]"></div>
+      <div class="flex justify-between items-center"><span class="text-white/30">Recuperas</span><span class="font-mono font-semibold text-white/70">~7–8 findes</span></div>
+    </div>
+  </div>
+</div><div class="spotlight-card card p-5">
+  <div class="relative z-10">
+    <span class="badge b-green">🟢 Lleno (100 clientes/día)</span>
+    <div class="text-2xl font-display font-bold text-white mt-3">+$10,024/mes</div>
+    <div class="mt-3 space-y-2 text-sm">
+      <div class="flex justify-between items-center"><span class="text-white/30">TIR</span><span class="font-mono font-semibold text-white/70">N/A</span></div>
+      <div class="h-px bg-white/[0.03]"></div>
+      <div class="flex justify-between items-center"><span class="text-white/30">Recuperas</span><span class="font-mono font-semibold text-white/70">~2.5 findes</span></div>
+    </div>
+  </div>
+</div></div><div class="mt-4 text-sm text-white/40 rounded-xl p-4" style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04)">La TIR no aplica (inversión muy chica + retorno rápido): lo que manda es la <b>ganancia mensual</b> y el <b>payback</b>. Punto de equilibrio: ~21 clientes/día (≈ $824 de venta por fin de semana).</div></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#fb923c"></span>Las cuentas en detalle
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><div class="grid md:grid-cols-2 gap-6">
+  <div><h3 class="font-display font-semibold text-white text-sm mb-3">Inversión (CAPEX)</h3><div class="rounded-xl overflow-hidden border border-white/[0.04]"><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Equipo del puesto (vitrolero, hielera, mesa, sombrilla, raspadera)</td><td class="num text-white/60">$4,900</td></tr><tr><td>Primer surtido de insumos</td><td class="num text-white/60">$1,000</td></tr><tr style="background:rgba(255,255,255,0.02)"><td class="font-bold text-white">Inversión total</td><td class="num font-bold text-white font-display">$5,900</td></tr></table></div></div>
+  <div><h3 class="font-display font-semibold text-white text-sm mb-3">Gastos mensuales (OPEX)</h3><div class="rounded-xl overflow-hidden border border-white/[0.04]"><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Hielo (mayoreo)</td><td class="num text-white/60">$250</td></tr><tr><td>Transporte y mantenimiento de equipo</td><td class="num text-white/60">$200</td></tr><tr><td>Consumibles (vasos, tapas, bolsas)</td><td class="num text-white/60">$350</td></tr><tr><td>Cuota de piso (por confirmar 🔴)</td><td class="num text-white/60">$160</td></tr><tr style="background:rgba(255,255,255,0.02)"><td class="font-bold text-white">OPEX / mes</td><td class="num font-bold text-white font-display">$960</td></tr></table></div><div class="mt-4 rounded-xl p-4 text-sm" style="background:rgba(52,211,153,0.04);border:1px solid rgba(52,211,153,0.08)"><span class="text-emerald-400">⚖️</span> <span class="text-white/60">Punto de equilibrio: <span class="text-white font-semibold">$824</span> de venta al mes.</span></div></div>
+</div></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#fb923c"></span>¿Cómo entra el socio?
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><div class="grid md:grid-cols-2 gap-4">
+  <div class="rounded-xl p-5" style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04)">
+    <div class="font-display font-semibold text-white text-sm">💵 Préstamo</div>
+    <p class="text-white/40 text-sm mt-2">La inversión es tan baja ($5,900) que normalmente no requiere socio capitalista.</p>
+  </div>
+  <div class="rounded-xl p-5" style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04)">
+    <div class="font-display font-semibold text-white text-sm">📊 Socio</div>
+    <p class="text-white/40 text-sm mt-2">Si se busca socio, sería para acelerar la Fase 2 (agua envasada).</p>
+  </div>
+</div></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#fb923c"></span>Riesgos (y cómo los cuidamos)
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><ul class="rlist"><li class="text-sm text-white/50">🔴 <b>Demanda sin medir:</b> las cifras son estimaciones de tianguis en general. Acción clave: contar clientes reales 3–4 fines de semana antes de invertir.</li><li class="text-sm text-white/50">🟡 <b>Cuota de piso cara:</b> si sube, la ganancia base baja. Confirmar el costo real en Cardel.</li><li class="text-sm text-white/50">🟡 <b>Ubicación junto al baño:</b> depende de cerrarla por escrito y de que esté bien ventilada.</li></ul></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#fb923c"></span>Por qué este proyecto
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><ul class="rlist"><li class="text-sm text-white/50">Inversión mínima ($5,900) y recuperación muy rápida (~1.7 meses).</li><li class="text-sm text-white/50">Dos ventajas propias: la ubicación (Cachetines maneja los baños) y el agua de purificadora.</li><li class="text-sm text-white/50">Riesgo de capital bajo: el equipo no se pierde si no funciona.</li></ul></div>
+  </div>
+</section>
+<section class="relative overflow-hidden rounded-2xl mt-10 p-8 md:p-12 text-center reveal" style="border:1px solid rgba(255,255,255,0.04)">
+  <div class="absolute inset-0 bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 opacity-40"></div>
+  <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(7,7,8,0.6), transparent)"></div>
   <div class="relative">
-    <p class="uppercase tracking-[.18em] text-xs text-white/80">Tianguis nuevo (sáb-dom), Ciudad Cardel, Veracruz</p>
-    <h1 class="text-3xl md:text-5xl font-extrabold text-white mt-2 leading-tight">🥤 Mercadito Fin de Semana</h1>
-    <p class="text-white/90 text-lg mt-3 max-w-2xl">Puesto de bebidas frías y antojitos junto al baño de un tianguis nuevo, con agua propia de purificadora.</p>
-    <div class="mt-4 flex flex-wrap gap-2"><span class="badge b-yellow">🟡 Listo (falta validar demanda)</span></div>
-  </div></section><div class="-mt-6 relative z-10 px-1"><div class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="card px-5 py-4">
-  <div class="text-2xl md:text-3xl font-display font-extrabold grad-text bg-gradient-to-r from-white to-slate-400">$5,900</div>
-  <div class="text-xs text-slate-400 mt-1">Inversión (MXN)</div></div><div class="card px-5 py-4">
-  <div class="text-2xl md:text-3xl font-display font-extrabold grad-text bg-gradient-to-r from-white to-slate-400">$3,469/mes</div>
-  <div class="text-xs text-slate-400 mt-1">Ganancia (base)</div></div><div class="card px-5 py-4">
-  <div class="text-2xl md:text-3xl font-display font-extrabold grad-text bg-gradient-to-r from-white to-slate-400">~1.7 meses</div>
-  <div class="text-xs text-slate-400 mt-1">Recuperas</div></div><div class="card px-5 py-4">
-  <div class="text-2xl md:text-3xl font-display font-extrabold grad-text bg-gradient-to-r from-white to-slate-400">58%</div>
-  <div class="text-xs text-slate-400 mt-1">Margen bruto</div></div></div></div><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>Resumen ejecutivo</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><p>Un puesto de <b>aguas frescas, raspados, refrescos y antojitos</b> en un mercadito nuevo de fin de semana. Dos ventajas difíciles de copiar: (1) está <b>junto al baño</b> —punto de paso obligado donde se forman filas de gente con calor y sed— y (2) usamos <b>agua propia de purificadora</b>, lo que baja el costo y resuelve la sanidad.</p></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>Por qué funciona</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><p>El calor de Veracruz + un punto de paso obligado = compra por impulso. El agua propia sube el margen de las aguas frescas y raspados a 65–75%. Inversión mínima y recuperación muy rápida.</p></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>El futuro (Fase 2)</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><p>Más adelante se puede <b>vender agua envasada/garrafón</b> (margen 65–73%), pero solo con los permisos en regla (COFEPRIS, análisis de laboratorio, NOM-201). Se entra a la Fase 2 cuando los papeles estén listos.</p></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>💰 Retorno por escenario (incluye el que pierde)</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><div class="grid sm:grid-cols-3 gap-4"><div class="card p-5">
-  <span class="badge b-red">🔴 Pesimista (25 clientes/día)</span>
-  <div class="text-2xl font-display font-extrabold text-white mt-3">—</div>
-  <div class="mt-2 space-y-1 text-sm text-slate-400">
-    <div class="flex justify-between"><span>TIR</span><b class="text-slate-200">N/A</b></div>
-    <div class="flex justify-between"><span>Recuperas</span><b class="text-slate-200">Pierde ~$61/mes</b></div>
-  </div></div><div class="card p-5">
-  <span class="badge b-yellow">🟡 Probable (55 clientes/día)</span>
-  <div class="text-2xl font-display font-extrabold text-white mt-3">+$3,469/mes</div>
-  <div class="mt-2 space-y-1 text-sm text-slate-400">
-    <div class="flex justify-between"><span>TIR</span><b class="text-slate-200">N/A</b></div>
-    <div class="flex justify-between"><span>Recuperas</span><b class="text-slate-200">~7–8 findes</b></div>
-  </div></div><div class="card p-5">
-  <span class="badge b-green">🟢 Lleno (100 clientes/día)</span>
-  <div class="text-2xl font-display font-extrabold text-white mt-3">+$10,024/mes</div>
-  <div class="mt-2 space-y-1 text-sm text-slate-400">
-    <div class="flex justify-between"><span>TIR</span><b class="text-slate-200">N/A</b></div>
-    <div class="flex justify-between"><span>Recuperas</span><b class="text-slate-200">~2.5 findes</b></div>
-  </div></div></div><div class="mt-4 text-sm text-slate-300 rounded-xl bg-white/5 border border-white/10 p-4">La TIR no aplica (inversión muy chica + retorno rápido): lo que manda es la <b>ganancia mensual</b> y el <b>payback</b>. Punto de equilibrio: ~21 clientes/día (≈ $824 de venta por fin de semana).</div></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>🧾 Las cuentas en detalle</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><div class="grid md:grid-cols-2 gap-6">
-  <div><h3 class="font-semibold text-white mb-2">Inversión (CAPEX)</h3><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Equipo del puesto (vitrolero, hielera, mesa, sombrilla, raspadera)</td><td class="num">$4,900</td></tr><tr><td>Primer surtido de insumos</td><td class="num">$1,000</td></tr><tr><td class="font-bold text-white">Inversión total</td><td class="num font-bold text-white">$5,900</td></tr></table></div>
-  <div><h3 class="font-semibold text-white mb-2">Gastos mensuales (OPEX)</h3><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Hielo (mayoreo)</td><td class="num">$250</td></tr><tr><td>Transporte y mantenimiento de equipo</td><td class="num">$200</td></tr><tr><td>Consumibles (vasos, tapas, bolsas)</td><td class="num">$350</td></tr><tr><td>Cuota de piso (por confirmar 🔴)</td><td class="num">$160</td></tr><tr><td class="font-bold text-white">OPEX / mes</td><td class="num font-bold text-white">$960</td></tr></table><div class="mt-4 rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-4 text-emerald-200">⚖️ <b>Punto de equilibrio:</b> $824 de venta al mes para no perder.</div></div></div></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>🤝 ¿Cómo entra el socio?</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><div class="grid md:grid-cols-2 gap-4">
-  <div class="rounded-2xl bg-white/5 border border-white/10 p-5"><div class="font-semibold text-white">💵 Préstamo</div><p class="text-slate-400 text-sm mt-1">La inversión es tan baja ($5,900) que normalmente no requiere socio capitalista.</p></div>
-  <div class="rounded-2xl bg-white/5 border border-white/10 p-5"><div class="font-semibold text-white">📊 Socio</div><p class="text-slate-400 text-sm mt-1">Si se busca socio, sería para acelerar la Fase 2 (agua envasada).</p></div></div></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>⚠️ Riesgos (y cómo los cuidamos)</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><ul class="rlist"><li>🔴 <b>Demanda sin medir:</b> las cifras son estimaciones de tianguis en general. Acción clave: contar clientes reales 3–4 fines de semana antes de invertir.</li><li>🟡 <b>Cuota de piso cara:</b> si sube, la ganancia base baja. Confirmar el costo real en Cardel.</li><li>🟡 <b>Ubicación junto al baño:</b> depende de cerrarla por escrito y de que esté bien ventilada.</li></ul></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>✅ Por qué este proyecto</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><ul class="rlist"><li>Inversión mínima ($5,900) y recuperación muy rápida (~1.7 meses).</li><li>Dos ventajas propias: la ubicación (Cachetines maneja los baños) y el agua de purificadora.</li><li>Riesgo de capital bajo: el equipo no se pierde si no funciona.</li></ul></div></section><section class="rounded-3xl mt-8 p-8 md:p-10 text-center bg-gradient-to-br from-orange-500 via-rose-500 to-rose-700 shadow-card">
-  <h2 class="text-2xl md:text-3xl font-extrabold text-white">¿Hablamos de este proyecto?</h2>
-  <p class="text-white/90 mt-2"><b>Erik Hernández</b> · erikjosehernandez@gmail.com</p>
-  <a href="../index.html" class="btn bg-white text-slate-900 mt-4 hover:opacity-90">← Ver los demás proyectos</a></section></main><footer class="max-w-6xl mx-auto px-5 py-10 text-center text-xs text-slate-500">
-  Documento de trabajo para socios · Cifras en MXN · Modelo financiero determinista ·
-  <span class="text-emerald-400">🟢 verificado</span> · <span class="text-amber-400">🟡 por confirmar</span> ·
-  <span class="text-rose-400">🔴 estimación</span><br>Generado 2026-06-26</footer>
+    <h2 class="text-2xl md:text-3xl font-display font-bold text-white">¿Hablamos de este proyecto?</h2>
+    <p class="text-white/50 mt-3"><span class="text-white font-semibold">Erik Hernández</span> · <span class="font-mono text-sm">erikjosehernandez@gmail.com</span></p>
+    <a href="../index.html" class="btn-ghost mt-6 inline-flex">← Ver los demás proyectos</a>
+  </div>
+</section>
+</main>
+<footer class="max-w-5xl mx-auto px-6 py-16">
+  <div class="section-divider mb-10"></div>
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/25">
+    <div class="flex items-center gap-2">
+      <div class="w-5 h-5 rounded-md bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center">
+        <span class="font-bold text-white text-[7px]">EH</span>
+      </div>
+      <span class="font-display font-semibold tracking-wider uppercase">Portafolio de Inversión</span>
+    </div>
+    <div class="flex items-center gap-6">
+      <span>Cifras en MXN</span>
+      <span class="text-emerald-400/60">● verificado</span>
+      <span class="text-amber-400/60">● por confirmar</span>
+      <span class="text-rose-400/60">● estimación</span>
+    </div>
+    <span class="font-mono text-white/15">2026</span>
+  </div>
+</footer>
+  </div>
+
   <script>
-    // Cursor magnético
-    const cursor = document.getElementById('custom-cursor');
-    if (cursor) {
-      let mouse = { x: -100, y: -100 };
-      let pos = { x: -100, y: -100 };
-      const speed = 0.15;
-      document.addEventListener('mousemove', (e) => {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-      });
-      function animateCursor() {
-        const dx = mouse.x - pos.x;
-        const dy = mouse.y - pos.y;
-        pos.x += dx * speed;
-        pos.y += dy * speed;
-        const size = cursor.classList.contains('hover') ? 58 : 32;
-        cursor.style.transform = `translate3d(${pos.x - size/2}px, ${pos.y - size/2}px, 0)`;
-        requestAnimationFrame(animateCursor);
+    // ── Custom cursor with physics ──
+    const ring = document.getElementById('cursor-ring');
+    const dot = document.getElementById('cursor-dot');
+    if (ring && dot) {
+      let mx = -100, my = -100, rx = -100, ry = -100;
+      const sp = 0.12;
+      document.addEventListener('mousemove', ev => { mx = ev.clientX; my = ev.clientY; });
+      function tick() {
+        rx += (mx - rx) * sp;
+        ry += (my - ry) * sp;
+        const s = ring.classList.contains('hover') ? 56 : 28;
+        ring.style.transform = `translate3d(${rx - s/2}px,${ry - s/2}px,0)`;
+        dot.style.transform = `translate3d(${mx - 2}px,${my - 2}px,0)`;
+        requestAnimationFrame(tick);
       }
-      requestAnimationFrame(animateCursor);
-      
-      const setupHover = () => {
-        const interactives = document.querySelectorAll('a, button, [role="button"], .interactive-element');
-        interactives.forEach(el => {
-          el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-          el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-        });
-      };
-      setupHover();
+      requestAnimationFrame(tick);
+      document.querySelectorAll('a,button,[role="button"],.interactive').forEach(el => {
+        el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+        el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+      });
     }
-    // Spotlight
-    const cards = document.querySelectorAll('.bento-card, .project-card, .premium-card, .card');
-    cards.forEach(card => {
-      let frameId = null;
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        if (frameId) cancelAnimationFrame(frameId);
-        frameId = requestAnimationFrame(() => {
-          card.style.setProperty('--mouse-x', `${x}px`);
-          card.style.setProperty('--mouse-y', `${y}px`);
-        });
+
+    // ── Card spotlight ──
+    document.querySelectorAll('.spotlight-card').forEach(c => {
+      c.addEventListener('mousemove', ev => {
+        const r = c.getBoundingClientRect();
+        c.style.setProperty('--mx', `${ev.clientX - r.left}px`);
+        c.style.setProperty('--my', `${ev.clientY - r.top}px`);
       });
-      card.addEventListener('mouseleave', () => {
-        if (frameId) cancelAnimationFrame(frameId);
-        requestAnimationFrame(() => {
-          card.style.removeProperty('--mouse-x');
-          card.style.removeProperty('--mouse-y');
-        });
+      c.addEventListener('mouseleave', () => {
+        c.style.removeProperty('--mx');
+        c.style.removeProperty('--my');
       });
     });
-    // Revelar elementos
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
-      }, 100);
-    });
+
+    // ── Scroll reveal with IntersectionObserver ──
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('active'), i * 60);
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    // ── Smooth nav background ──
+    const nav = document.querySelector('.nav-bar');
+    if (nav) {
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            nav.classList.toggle('scrolled', window.scrollY > 60);
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+    }
   </script>
 </body></html>

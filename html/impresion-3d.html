@@ -1,292 +1,551 @@
 <!DOCTYPE html><html lang="es"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Impresión 3D Cardel · Inversión</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@700;800;900&display=swap" rel="stylesheet">
+<title>Impresión 3D Cardel · Inversión</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/tw.css">
 <style>
+  /* ── Base canvas ── */
   body {
     background-color: #070708;
-    background-image: 
-      linear-gradient(to right, rgba(255, 255, 255, 0.012) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
-    background-size: 40px 40px;
     cursor: none;
-    content-visibility: auto;
+    overflow-x: hidden;
   }
+
+  /* ── Blueprint grid overlay ── */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
+  }
+
+  /* ── Aurora ambient light ── */
+  .aurora-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .aurora-bg::before {
+    content: '';
+    position: absolute;
+    width: 140%;
+    height: 140%;
+    top: -30%;
+    left: -20%;
+    background: 
+      radial-gradient(ellipse 600px 400px at 20% 20%, rgba(129,140,248,0.06), transparent 60%),
+      radial-gradient(ellipse 500px 350px at 80% 10%, rgba(192,132,252,0.04), transparent 55%),
+      radial-gradient(ellipse 400px 300px at 60% 80%, rgba(52,211,153,0.03), transparent 50%);
+    animation: aurora 20s ease-in-out infinite;
+    background-size: 200% 200%;
+  }
+
+  /* ── Noise texture ── */
   .noise-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
+    inset: 0;
+    z-index: 1;
     pointer-events: none;
-    opacity: 0.015;
+    opacity: 0.012;
   }
+
+  /* ── Custom cursor ── */
   .custom-cursor {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 32px;
-    height: 32px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    top: 0; left: 0;
+    width: 28px; height: 28px;
+    border: 1.5px solid rgba(255,255,255,0.25);
     border-radius: 50%;
     pointer-events: none;
     z-index: 10000;
-    transform: translate3d(-100px, -100px, 0);
-    transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-                height 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-                background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
-                border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translate3d(-100px,-100px,0);
+    transition: width 0.35s cubic-bezier(0.16,1,0.3,1),
+                height 0.35s cubic-bezier(0.16,1,0.3,1),
+                background-color 0.35s cubic-bezier(0.16,1,0.3,1),
+                border-color 0.35s cubic-bezier(0.16,1,0.3,1);
     will-change: transform;
-    transform-style: preserve-3d;
+  }
+  .cursor-dot {
+    position: fixed;
+    top: 0; left: 0;
+    width: 4px; height: 4px;
+    background: white;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10001;
+    transform: translate3d(-100px,-100px,0);
+    will-change: transform;
   }
   @media (max-width: 768px) {
-    .custom-cursor { display: none !important; }
+    .custom-cursor, .cursor-dot { display: none !important; }
     body { cursor: auto !important; }
   }
   .custom-cursor.hover {
-    width: 58px;
-    height: 58px;
-    background-color: #ffffff;
+    width: 56px; height: 56px;
+    background-color: rgba(255,255,255,0.9);
     border-color: transparent;
     mix-blend-mode: difference;
   }
-  .bento-card, .project-card, .premium-card, .card {
+
+  /* ── Card spotlight effect ── */
+  .spotlight-card {
     position: relative;
-    background: rgba(13, 13, 15, 0.45);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    border-radius: 1.5rem;
     overflow: hidden;
-    transition: border-color 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
-                transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    transform-style: preserve-3d;
-    transform: translate3d(0,0,0);
-    will-change: transform;
+    transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
   }
-  .bento-card:hover, .project-card:hover, .premium-card:hover, .card:hover {
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    transform: translateY(-4px) translate3d(0,0,0);
-  }
-  .bento-card::before, .project-card::before, .premium-card::before, .card::before {
+  .spotlight-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 1.5rem;
-    background: radial-gradient(350px circle at var(--mouse-x, -999px) var(--mouse-y, -999px), rgba(139, 92, 246, 0.1), transparent 80%);
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(400px circle at var(--mx,-999px) var(--my,-999px),
+      rgba(129,140,248,0.06), transparent 70%);
     z-index: 0;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.5s ease;
-    will-change: opacity;
   }
-  .bento-card:hover::before, .project-card:hover::before, .premium-card:hover::before, .card:hover::before {
-    opacity: 1;
+  .spotlight-card:hover::before { opacity: 1; }
+  .spotlight-card:hover {
+    border-color: rgba(255,255,255,0.08) !important;
+    transform: translateY(-3px);
   }
+
+  /* ── Scroll reveal ── */
   .reveal {
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(30px);
+    transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1),
+                transform 0.9s cubic-bezier(0.16,1,0.3,1);
   }
   .reveal.active {
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* ── Gradient border ── */
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(129,140,248,0.3), transparent 50%, rgba(192,132,252,0.2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* ── Animated shimmer ── */
+  .shimmer-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(129,140,248,0.3), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  /* ── Number counter animation ── */
+  @keyframes aurora {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ── Stagger delays ── */
+  .delay-1 { transition-delay: 100ms; animation-delay: 100ms; }
+  .delay-2 { transition-delay: 200ms; animation-delay: 200ms; }
+  .delay-3 { transition-delay: 300ms; animation-delay: 300ms; }
+  .delay-4 { transition-delay: 400ms; animation-delay: 400ms; }
+  .delay-5 { transition-delay: 500ms; animation-delay: 500ms; }
+
+  /* ── Project card hover gradient shift ── */
+  .project-card .card-gradient {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .project-card:hover .card-gradient {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+
+  /* ── Horizontal scroll for chips ── */
+  .scroll-chips { scrollbar-width: none; }
+  .scroll-chips::-webkit-scrollbar { display: none; }
 </style>
-</head><body class="min-h-screen text-neutral-200 antialiased overflow-x-hidden selection:bg-white/10 selection:text-white pb-10">
-  <!-- Noise Overlay -->
+</head><body class="min-h-screen antialiased pb-10">
+  <!-- Aurora ambient -->
+  <div class="aurora-bg"></div>
+  <!-- Grid overlay -->
+  <div class="grid-overlay"></div>
+  <!-- Noise texture -->
   <svg class="noise-overlay" xmlns="http://www.w3.org/2000/svg">
-    <filter id="noiseFilter">
-      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/>
-    </filter>
-    <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
+    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#noise)"/>
   </svg>
-  <!-- Custom Cursor -->
-  <div id="custom-cursor" class="custom-cursor"></div>
-  <header class="fixed top-6 left-0 right-0 z-50 px-4 md:px-8 max-w-6xl mx-auto">
-  <nav class="backdrop-blur-md bg-[#070708]/60 border border-white/5 rounded-full py-3 px-6 flex items-center justify-between shadow-2xl transition-all duration-300 hover:border-white/10">
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-        <span class="font-black text-black text-sm">◆</span>
+  <!-- Cursors -->
+  <div id="cursor-ring" class="custom-cursor"></div>
+  <div id="cursor-dot" class="cursor-dot"></div>
+
+  <div class="relative z-10">
+  <header class="fixed top-0 left-0 right-0 z-50 px-4 pt-5">
+  <nav class="nav-bar max-w-5xl mx-auto backdrop-blur-xl bg-surface-0/50 border border-white/[0.04] rounded-2xl py-2.5 px-5 flex items-center justify-between transition-all duration-500" style="box-shadow:0 8px 40px -12px rgba(0,0,0,.5)">
+    <div class="flex items-center gap-3">
+      <div class="relative w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-glow-sm">
+        <span class="font-display font-bold text-white text-[10px]">EH</span>
       </div>
-      <a href="../index.html" class="font-display font-extrabold text-white text-xs tracking-widest uppercase">Portafolio</a>
+      <a href="../index.html" class="font-display font-bold text-white text-xs tracking-[.15em] uppercase hover:text-accent-bright transition-colors duration-300">Portafolio</a>
     </div>
-    <div class="hidden md:flex items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-white/60">
-      <a href="../index.html" class="hover:text-white transition">Inicio</a>
-      <a href="../index.html#oportunidades" class="hover:text-white transition">Oportunidades</a>
+    <div class="hidden md:flex items-center gap-8 text-[11px] font-semibold tracking-[.12em] uppercase text-white/40">
+      <a href="../index.html" class="hover:text-white transition-colors duration-300 relative group">
+        Inicio
+        <span class="absolute -bottom-1 left-0 w-0 h-px bg-accent group-hover:w-full transition-all duration-300"></span>
+      </a>
+      <a href="../index.html#oportunidades" class="hover:text-white transition-colors duration-300 relative group">
+        Proyectos
+        <span class="absolute -bottom-1 left-0 w-0 h-px bg-accent group-hover:w-full transition-all duration-300"></span>
+      </a>
     </div>
-    <div class="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full py-1.5 px-3">
+    <div class="flex items-center gap-2 rounded-full py-1.5 px-3" style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.12)">
       <span class="relative flex h-1.5 w-1.5">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
       </span>
-      <span class="text-[8px] uppercase tracking-wider font-extrabold text-white/80">Online</span>
+      <span class="text-[9px] uppercase tracking-[.15em] font-bold text-emerald-300/80">Live</span>
     </div>
   </nav>
-</header><main class="max-w-5xl mx-auto px-5 pb-16 pt-28"><a href="../index.html" class="inline-block mt-5 text-sm text-slate-400 hover:text-[#f4f4f5] transition">← Portafolio</a><section class="relative overflow-hidden rounded-3xl mt-3 p-8 md:p-12 bg-gradient-to-br from-sky-500 via-indigo-500 to-indigo-800 shadow-card">
-  <div class="absolute -right-16 -top-16 w-72 h-72 rounded-full bg-white/15 blur-2xl animate-floaty"></div>
+</header>
+<main class="max-w-5xl mx-auto px-5 pb-16 pt-28">
+<a href="../index.html" class="inline-flex items-center gap-2 mt-5 text-sm text-white/25 hover:text-white/60 transition-colors duration-300 group"><svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg><span class="font-mono text-xs tracking-wider uppercase">Portafolio</span></a>
+<section class="relative overflow-hidden rounded-2xl mt-4 reveal" style="border:1px solid rgba(255,255,255,0.04)">
+  <!-- Gradient background -->
+  <div class="absolute inset-0 bg-gradient-to-br from-indigo-400 via-violet-500 to-purple-600 opacity-80"></div>
+  <div class="absolute inset-0 bg-gradient-to-t from-surface-0/80 via-transparent to-transparent"></div>
+  <!-- Ambient glow -->
+  <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full blur-3xl animate-floaty" style="background:rgba(129,140,248,.12)"></div>
+  <div class="absolute -left-20 bottom-0 w-60 h-60 rounded-full blur-3xl opacity-50" style="background:rgba(129,140,248,.12)"></div>
+  <!-- Content -->
+  <div class="relative p-8 md:p-14">
+    <p class="font-mono text-[11px] tracking-[.2em] uppercase text-white/50">Ciudad Cardel, La Antigua, Veracruz</p>
+    <h1 class="text-3xl md:text-5xl font-display font-bold text-white mt-3 leading-[1.1] tracking-tight">🖨️ Impresión 3D Cardel</h1>
+    <p class="text-white/70 text-base mt-4 max-w-2xl leading-relaxed">Servicio de impresión 3D para prototipos y piezas a la medida (B2B) en Ciudad Cardel — el único en el municipio.</p>
+    <div class="mt-5 flex flex-wrap gap-2"><span class="badge b-green">🟢 Listo para presentar</span></div>
+  </div>
+</section>
+<div class="-mt-5 relative z-10 px-1"><div class="grid grid-cols-2 md:grid-cols-4 gap-3"><div class="spotlight-card card px-5 py-5 reveal delay-1">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">$231,000</div>
+    <div class="text-[11px] text-white/30 mt-1.5 font-medium tracking-wide uppercase">Inversión (MXN)</div>
+  </div>
+</div><div class="spotlight-card card px-5 py-5 reveal delay-2">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">131%</div>
+    <div class="text-[11px] text-white/30 mt-1.5 font-medium tracking-wide uppercase">TIR anual (base)</div>
+  </div>
+</div><div class="spotlight-card card px-5 py-5 reveal delay-3">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">17 meses</div>
+    <div class="text-[11px] text-white/30 mt-1.5 font-medium tracking-wide uppercase">Recuperas (payback)</div>
+  </div>
+</div><div class="spotlight-card card px-5 py-5 reveal delay-4">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">+$444k</div>
+    <div class="text-[11px] text-white/30 mt-1.5 font-medium tracking-wide uppercase">VAN a 3 años</div>
+  </div>
+</div></div></div>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>Resumen ejecutivo
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><p>Una <b>“papelería de piezas a la medida”</b>: el cliente trae una idea o un dibujo y se la entregamos impresa en 3D (plástico o resina). Enfoque B2B: talleres, ingenios cañeros, el puerto, diseñadores y arquitectos. Arranca en casa (etapa piloto, sin renta) para reducir riesgo. <b>No hay ningún taller de impresión 3D en el municipio</b> — ventaja de ser el primero.</p></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>🚀 Arranque mínimo (escalable)
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><p>La versión <span class="text-white font-semibold">bootstrap</span>: como <span class="text-white font-semibold">ya tienen el local</span>, <span class="text-white font-semibold">no se pagan salarios</span> (ustedes operan) y arrancan <span class="text-white font-semibold">informal</span> (venta a particulares), se empieza con muy poco y se <span class="text-white font-semibold">crece reinvirtiendo</span> las ganancias.</p><div class="grid grid-cols-2 md:grid-cols-4 gap-3 my-6"><div class="spotlight-card card p-4 text-center reveal delay-1"><div class="relative z-10"><div class="text-lg font-display font-bold" style="color:#818cf8">$20,000</div><div class="text-[10px] text-white/25 mt-1 uppercase tracking-wide font-semibold">Para empezar</div></div></div><div class="spotlight-card card p-4 text-center reveal delay-2"><div class="relative z-10"><div class="text-lg font-display font-bold" style="color:#818cf8">$2,564/mes</div><div class="text-[10px] text-white/25 mt-1 uppercase tracking-wide font-semibold">Equilibrio</div></div></div><div class="spotlight-card card p-4 text-center reveal delay-3"><div class="relative z-10"><div class="text-lg font-display font-bold" style="color:#818cf8">Mes 5</div><div class="text-[10px] text-white/25 mt-1 uppercase tracking-wide font-semibold">Recuperas</div></div></div><div class="spotlight-card card p-4 text-center reveal delay-4"><div class="relative z-10"><div class="text-lg font-display font-bold" style="color:#818cf8">+$37,140</div><div class="text-[10px] text-white/25 mt-1 uppercase tracking-wide font-semibold">Ganancia 6 meses</div></div></div></div><div class="grid md:grid-cols-2 gap-6"><div><h3 class="font-display font-semibold text-white text-sm mb-3">Inversión mínima (CAPEX)</h3><div class="rounded-xl overflow-hidden border border-white/[0.04]"><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Impresora FDM confiable (ej. Bambu Lab A1/P1S) 🟡</td><td class="num text-white/60">$13,000</td></tr><tr><td>Filamento inicial (3-4 rollos PLA/PETG)</td><td class="num text-white/60">$2,500</td></tr><tr><td>Post-proceso básico (lijas, espátula, pinzas, pegamento)</td><td class="num text-white/60">$1,000</td></tr><tr><td>Marketing de arranque (muestras, lona, redes)</td><td class="num text-white/60">$1,500</td></tr><tr><td>Reserva de material / imprevistos</td><td class="num text-white/60">$2,000</td></tr><tr style="background:rgba(255,255,255,0.02)"><td class="font-bold text-white">Inversión mínima</td><td class="num font-bold text-white font-display">$20,000</td></tr></table></div></div><div><h3 class="font-display font-semibold text-white text-sm mb-3">Gasto mensual (OPEX)</h3><div class="rounded-xl overflow-hidden border border-white/[0.04]"><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Luz (CFE, consumo de la impresora) 🟡</td><td class="num text-white/60">$400</td></tr><tr><td>Mantenimiento (boquillas, refacciones)</td><td class="num text-white/60">$400</td></tr><tr><td>Marketing continuo (redes, muestras)</td><td class="num text-white/60">$800</td></tr><tr><td>Misceláneos</td><td class="num text-white/60">$400</td></tr><tr style="background:rgba(255,255,255,0.02)"><td class="font-bold text-white">OPEX / mes</td><td class="num font-bold text-white font-display">$2,000</td></tr></table></div><div class="mt-4 rounded-xl p-4 text-sm" style="background:rgba(129,140,248,0.05);border:1px solid rgba(129,140,248,0.1)"><span style="color:#818cf8">⚖️</span> Equilibrio de solo <span class="text-white font-semibold">$2,564/mes</span> — facilísimo de alcanzar al no cargar renta ni sueldos.</div></div></div><h3 class="font-display font-semibold text-white text-sm mt-8 mb-3">Proyección de 6 meses</h3><div class="grid md:grid-cols-2 gap-6 items-center"><div><div class="rounded-xl overflow-hidden border border-white/[0.04]"><table class="ptable"><tr><th>Mes</th><th class="num">Vende</th><th class="num">Gana</th><th class="num">Acumulado</th></tr><tr><td class="font-mono text-white/40">M1</td><td class="num text-white/50">$3,000</td><td class="num text-white/50">$340</td><td class="num text-rose-400/80 font-semibold">$-19,660</td></tr><tr><td class="font-mono text-white/40">M2</td><td class="num text-white/50">$6,000</td><td class="num text-white/50">$2,680</td><td class="num text-rose-400/80 font-semibold">$-16,980</td></tr><tr><td class="font-mono text-white/40">M3</td><td class="num text-white/50">$9,000</td><td class="num text-white/50">$5,020</td><td class="num text-rose-400/80 font-semibold">$-11,960</td></tr><tr><td class="font-mono text-white/40">M4</td><td class="num text-white/50">$12,000</td><td class="num text-white/50">$7,360</td><td class="num text-rose-400/80 font-semibold">$-4,600</td></tr><tr><td class="font-mono text-white/40">M5</td><td class="num text-white/50">$15,000</td><td class="num text-white/50">$9,700</td><td class="num text-emerald-400/80 font-semibold">$5,100</td></tr><tr><td class="font-mono text-white/40">M6</td><td class="num text-white/50">$18,000</td><td class="num text-white/50">$12,040</td><td class="num text-emerald-400/80 font-semibold">$17,140</td></tr></table></div></div><div class="overflow-x-auto"><div class="text-[10px] text-white/20 mb-2 font-mono uppercase tracking-wider">Camino a recuperar la inversión</div><svg viewBox="0 0 860 360" class="w-full h-auto" role="img" aria-label="Flujo de caja acumulado"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#818cf8" stop-opacity=".2"/><stop offset="100%" stop-color="#818cf8" stop-opacity="0"/></linearGradient></defs><line x1="80" y1="314.0" x2="834" y2="314.0" stroke="rgba(255,255,255,.04)"/><text x="70" y="318.0" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="end">$-23k</text><line x1="80" y1="241.5" x2="834" y2="241.5" stroke="rgba(255,255,255,.04)"/><text x="70" y="245.5" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="end">$-12k</text><line x1="80" y1="169.0" x2="834" y2="169.0" stroke="rgba(255,255,255,.04)"/><text x="70" y="173.0" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="end">$-1k</text><line x1="80" y1="96.5" x2="834" y2="96.5" stroke="rgba(255,255,255,.04)"/><text x="70" y="100.5" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="end">$9k</text><line x1="80" y1="24.0" x2="834" y2="24.0" stroke="rgba(255,255,255,.04)"/><text x="70" y="28.0" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="end">$20k</text><line x1="80" y1="159.4" x2="834" y2="159.4" stroke="rgba(255,255,255,.15)" stroke-dasharray="4 3"/><text x="80.0" y="346" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="middle">m0</text><text x="834.0" y="346" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="middle">m6</text><path d="M80.0,159.4 L80.0,294.0 L205.7,291.7 L331.3,273.7 L457.0,239.9 L582.7,190.3 L708.3,125.0 L834.0,44.0 L834.0,159.4 Z" fill="url(#ga)"/><polyline points="80.0,294.0 205.7,291.7 331.3,273.7 457.0,239.9 582.7,190.3 708.3,125.0 834.0,44.0" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg></div></div><div class="mt-4 rounded-xl p-4 text-sm" style="background:rgba(52,211,153,0.04);border:1px solid rgba(52,211,153,0.08)"><span class="text-emerald-400">✅</span> <span class="text-white/70">Recuperas la inversión en el <span class="text-white font-semibold">mes 5</span> y cierras el medio año con <span class="text-emerald-300 font-semibold">+$37,140</span> acumulado, con riesgo bajísimo.</span></div></div>
+  </div>
+</section><section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>🗺️ Roadmap de 6 meses
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><div class="mt-3"><div class="relative pl-12 pb-8 border-l border-white/[0.04] last:pb-0 reveal delay-1"><div class="absolute -left-4 top-0 w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white grid place-items-center font-display font-bold text-xs shadow-glow-sm">1</div><div class="spotlight-card card p-5"><div class="relative z-10"><div class="flex items-center gap-2"><span class="text-lg">🛠️</span><h3 class="font-display font-semibold text-white text-sm">Mes 1 · Montar y aprender</h3></div><ul class="rlist mt-2 text-sm text-white/50"><li>Comprar la impresora y ponerla a punto en el local</li><li>Aprender el slicer + diseño básico (Tinkercad / FreeCAD), 10–15 h</li><li>Imprimir 10–15 piezas muestra (llaveros, organizadores, figuras)</li><li>Abrir WhatsApp Business + Facebook / Instagram / Marketplace</li></ul><div class="flex flex-wrap gap-2 mt-3"><span class="badge b-green">🎯 Listos para vender, con portafolio físico</span><span class="badge b-blue">💵 La inversión inicial (~$20k)</span></div></div></div></div><div class="relative pl-12 pb-8 border-l border-white/[0.04] last:pb-0 reveal delay-2"><div class="absolute -left-4 top-0 w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white grid place-items-center font-display font-bold text-xs shadow-glow-sm">2</div><div class="spotlight-card card p-5"><div class="relative z-10"><div class="flex items-center gap-2"><span class="text-lg">📣</span><h3 class="font-display font-semibold text-white text-sm">Mes 2 · Primeras ventas (B2C fácil)</h3></div><ul class="rlist mt-2 text-sm text-white/50"><li>Publicar el catálogo de muestras en redes y Marketplace</li><li>Vender piezas simples: llaveros, soportes, figuras, repuestos caseros</li><li>Pedir reseña y foto a cada cliente</li></ul><div class="flex flex-wrap gap-2 mt-3"><span class="badge b-green">🎯 Primeros ~$6,000 en ventas; reinvertir en filamento</span><span class="badge b-blue">💵 ~$0 extra (se cubre con ventas)</span></div></div></div></div><div class="relative pl-12 pb-8 border-l border-white/[0.04] last:pb-0 reveal delay-3"><div class="absolute -left-4 top-0 w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white grid place-items-center font-display font-bold text-xs shadow-glow-sm">3</div><div class="spotlight-card card p-5"><div class="relative z-10"><div class="flex items-center gap-2"><span class="text-lg">🤝</span><h3 class="font-display font-semibold text-white text-sm">Mes 3 · Tocar puertas B2B</h3></div><ul class="rlist mt-2 text-sm text-white/50"><li>Visitar talleres, ferreterías, ingenios y diseñadores con muestras en mano</li><li>Ofrecer refacciones discontinuadas y prototipos</li><li>Cotizar por WhatsApp con fotos</li><li>⚠️ Iniciar RFC / RESICO: los clientes B2B (ingenios, empresas) exigen factura</li></ul><div class="flex flex-wrap gap-2 mt-3"><span class="badge b-green">🎯 2–3 clientes B2B; ventas ~$9,000</span><span class="badge b-blue">💵 Trámite SAT en línea ~$0</span></div></div></div></div><div class="relative pl-12 pb-8 border-l border-white/[0.04] last:pb-0 reveal delay-4"><div class="absolute -left-4 top-0 w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white grid place-items-center font-display font-bold text-xs shadow-glow-sm">4</div><div class="spotlight-card card p-5"><div class="relative z-10"><div class="flex items-center gap-2"><span class="text-lg">♻️</span><h3 class="font-display font-semibold text-white text-sm">Mes 4 · Reinvertir y subir calidad</h3></div><ul class="rlist mt-2 text-sm text-white/50"><li>Con las ganancias: más filamento, mejor post-proceso o 2ª impresora si hay demanda</li><li>Formalizar la facturación (ya con ingreso que lo justifica)</li></ul><div class="flex flex-wrap gap-2 mt-3"><span class="badge b-green">🎯 Ventas ~$12,000; inversión casi recuperada</span><span class="badge b-blue">💵 Reinversión de ganancias</span></div></div></div></div><div class="relative pl-12 pb-8 border-l border-white/[0.04] last:pb-0 reveal delay-5"><div class="absolute -left-4 top-0 w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white grid place-items-center font-display font-bold text-xs shadow-glow-sm">5</div><div class="spotlight-card card p-5"><div class="relative z-10"><div class="flex items-center gap-2"><span class="text-lg">📈</span><h3 class="font-display font-semibold text-white text-sm">Mes 5 · Consolidar</h3></div><ul class="rlist mt-2 text-sm text-white/50"><li>Clientes recurrentes, precios ajustados y entregas confiables</li><li>Evaluar resina (detalle fino) si los clientes lo piden</li></ul><div class="flex flex-wrap gap-2 mt-3"><span class="badge b-green">🎯 Ventas ~$15,000; ✅ inversión recuperada</span><span class="badge b-blue">💵 Opcional: resina ~$8k (de ganancias)</span></div></div></div></div><div class="relative pl-12 pb-8 border-l border-white/[0.04] last:pb-0 reveal delay-5"><div class="absolute -left-4 top-0 w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white grid place-items-center font-display font-bold text-xs shadow-glow-sm">6</div><div class="spotlight-card card p-5"><div class="relative z-10"><div class="flex items-center gap-2"><span class="text-lg">🚀</span><h3 class="font-display font-semibold text-white text-sm">Mes 6 · Decidir el salto</h3></div><ul class="rlist mt-2 text-sm text-white/50"><li>Evaluar: seguir orgánico vs. dar el salto al plan formal ($231k con socio)</li><li>Sacar permisos pendientes, sitio web y catálogo formal</li></ul><div class="flex flex-wrap gap-2 mt-3"><span class="badge b-green">🎯 Ventas ~$18,000; decisión de escalar</span><span class="badge b-blue">💵 Según la decisión</span></div></div></div></div></div></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>Cómo funciona
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-2"><div class="spotlight-card card p-5 relative reveal delay-1">
+  <div class="relative z-10">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 grid place-items-center text-white font-display font-bold text-xs shadow-glow-sm">1</div>
+      <span class="text-lg">💡</span>
+    </div>
+    <div class="font-semibold text-white text-sm">La idea</div>
+    <div class="text-xs text-white/40 mt-1">El cliente trae un dibujo, foto o la pieza rota.</div>
+  </div>
+</div><div class="spotlight-card card p-5 relative reveal delay-2">
+  <div class="relative z-10">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 grid place-items-center text-white font-display font-bold text-xs shadow-glow-sm">2</div>
+      <span class="text-lg">🖥️</span>
+    </div>
+    <div class="font-semibold text-white text-sm">Diseño CAD</div>
+    <div class="text-xs text-white/40 mt-1">La modelamos en 3D (o usa su archivo).</div>
+  </div>
+</div><div class="spotlight-card card p-5 relative reveal delay-3">
+  <div class="relative z-10">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 grid place-items-center text-white font-display font-bold text-xs shadow-glow-sm">3</div>
+      <span class="text-lg">🖨️</span>
+    </div>
+    <div class="font-semibold text-white text-sm">Impresión</div>
+    <div class="text-xs text-white/40 mt-1">Capa por capa en plástico o resina.</div>
+  </div>
+</div><div class="spotlight-card card p-5 relative reveal delay-4">
+  <div class="relative z-10">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 grid place-items-center text-white font-display font-bold text-xs shadow-glow-sm">4</div>
+      <span class="text-lg">📦</span>
+    </div>
+    <div class="font-semibold text-white text-sm">Entrega</div>
+    <div class="text-xs text-white/40 mt-1">Acabado, control de calidad y entrega en horas.</div>
+  </div>
+</div></div></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>La oportunidad
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><p>Cardel es el cruce de caminos del centro de Veracruz: a 30 min del puerto, cerca de la CFE de Laguna Verde, ingenios azucareros y el corredor industrial. Muchos negocios necesitan refacciones discontinuadas, prototipos y piezas especiales y hoy tienen que pedirlas a Veracruz o Xalapa (30–90 min). Nosotros las hacemos local y rápido.</p></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>Cómo gana dinero
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><ul><li>Piezas y refacciones a la medida: <b>$150–$1,200</b> por pieza.</li><li>Prototipos y maquetas para diseñadores/arquitectos: <b>$250–$1,500</b>.</li><li>Lotes para ingenios y puerto: <b>$300–$3,000</b>.</li></ul><p>Margen bruto operativo alto (~82%); el costo variable de material es ~18% de la venta.</p></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>Oportunidades de Financiamiento
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><p>El proyecto es elegible para apalancamiento mediante <b>programas gubernamentales de Veracruz</b> (Fondo del Futuro, NAFIN), <b>Leasing (Arrendamiento Puro)</b> con deducción fiscal al 100%, o <b>Vendor Financing</b> a meses sin intereses directo con los fabricantes de impresoras, reduciendo la presión de capital inicial.</p></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>Flujo de caja acumulado
+    </h2>
+    <p class="text-white/30 text-sm mt-2">Dinero neto acumulado mes a mes. Donde la línea cruza el cero, se recuperó la inversión.</p>
+    <div class="mt-4 overflow-x-auto"><svg viewBox="0 0 860 360" class="w-full h-auto" role="img" aria-label="Flujo de caja acumulado"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#818cf8" stop-opacity=".2"/><stop offset="100%" stop-color="#818cf8" stop-opacity="0"/></linearGradient></defs><line x1="80" y1="314.0" x2="834" y2="314.0" stroke="rgba(255,255,255,.04)"/><text x="70" y="318.0" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="end">$-483k</text><line x1="80" y1="241.5" x2="834" y2="241.5" stroke="rgba(255,255,255,.04)"/><text x="70" y="245.5" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="end">$119k</text><line x1="80" y1="169.0" x2="834" y2="169.0" stroke="rgba(255,255,255,.04)"/><text x="70" y="173.0" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="end">$720k</text><line x1="80" y1="96.5" x2="834" y2="96.5" stroke="rgba(255,255,255,.04)"/><text x="70" y="100.5" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="end">$1.3M</text><line x1="80" y1="24.0" x2="834" y2="24.0" stroke="rgba(255,255,255,.04)"/><text x="70" y="28.0" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="end">$1.9M</text><line x1="80" y1="255.8" x2="834" y2="255.8" stroke="rgba(255,255,255,.15)" stroke-dasharray="4 3"/><text x="80.0" y="346" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="middle">m0</text><text x="205.7" y="346" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="middle">m6</text><text x="331.3" y="346" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="middle">m12</text><text x="457.0" y="346" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="middle">m18</text><text x="582.7" y="346" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="middle">m24</text><text x="708.3" y="346" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="middle">m30</text><text x="834.0" y="346" font-size="11" font-family="JetBrains Mono,monospace" fill="rgba(255,255,255,.2)" text-anchor="middle">m36</text><path d="M80.0,255.8 L80.0,273.4 L100.9,275.2 L121.9,276.3 L142.8,276.9 L163.8,276.9 L184.7,276.4 L205.7,285.7 L226.6,284.3 L247.6,282.6 L268.5,280.5 L289.4,278.2 L310.4,275.6 L331.3,272.7 L352.3,269.6 L373.2,266.3 L394.2,262.9 L415.1,259.3 L436.1,255.5 L457.0,251.6 L477.9,247.5 L498.9,243.4 L519.8,239.2 L540.8,234.8 L561.7,230.4 L582.7,225.9 L603.6,221.4 L624.6,216.8 L645.5,212.1 L666.4,207.4 L687.4,202.6 L708.3,197.8 L729.3,193.0 L750.2,188.1 L771.2,183.2 L792.1,178.3 L813.1,173.3 L834.0,168.3 L834.0,255.8 Z" fill="url(#ga)"/><polyline points="80.0,273.4 100.9,275.6 121.9,277.5 142.8,279.1 163.8,280.4 184.7,281.5 205.7,292.6 226.6,293.3 247.6,293.7 268.5,293.9 289.4,294.0 310.4,293.9 331.3,293.7 352.3,293.3 373.2,292.8 394.2,292.1 415.1,291.4 436.1,290.5 457.0,289.6 477.9,288.5 498.9,287.4 519.8,286.2 540.8,284.9 561.7,283.5 582.7,282.1 603.6,280.6 624.6,279.1 645.5,277.5 666.4,275.8 687.4,274.1 708.3,272.4 729.3,270.7 750.2,268.9 771.2,267.0 792.1,265.2 813.1,263.3 834.0,261.3" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 3"/><polyline points="80.0,273.4 100.9,274.6 121.9,274.5 142.8,273.5 163.8,271.4 184.7,268.6 205.7,275.3 226.6,271.0 247.6,266.3 268.5,261.0 289.4,255.2 310.4,249.1 331.3,242.7 352.3,235.9 373.2,228.9 394.2,221.6 415.1,214.1 436.1,206.5 457.0,198.6 477.9,190.7 498.9,182.6 519.8,174.4 540.8,166.0 561.7,157.7 582.7,149.2 603.6,140.6 624.6,132.1 645.5,123.4 666.4,114.7 687.4,106.0 708.3,97.2 729.3,88.4 750.2,79.6 771.2,70.7 792.1,61.8 813.1,52.9 834.0,44.0" fill="none" stroke="#34d399" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 3"/><polyline points="80.0,273.4 100.9,275.2 121.9,276.3 142.8,276.9 163.8,276.9 184.7,276.4 205.7,285.7 226.6,284.3 247.6,282.6 268.5,280.5 289.4,278.2 310.4,275.6 331.3,272.7 352.3,269.6 373.2,266.3 394.2,262.9 415.1,259.3 436.1,255.5 457.0,251.6 477.9,247.5 498.9,243.4 519.8,239.2 540.8,234.8 561.7,230.4 582.7,225.9 603.6,221.4 624.6,216.8 645.5,212.1 666.4,207.4 687.4,202.6 708.3,197.8 729.3,193.0 750.2,188.1 771.2,183.2 792.1,178.3 813.1,173.3 834.0,168.3" fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
+    <div class="flex gap-6 text-xs text-white/30 mt-4 flex-wrap font-mono">
+      <span><i class="inline-block w-4 h-px align-middle mr-1.5" style="background:#fb7185"></i>pesimista</span>
+      <span><i class="inline-block w-4 h-0.5 align-middle mr-1.5" style="background:#818cf8"></i>base</span>
+      <span><i class="inline-block w-4 h-px align-middle mr-1.5" style="background:#34d399"></i>optimista</span>
+    </div>
+  </div>
+</section><section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>VAN por escenario
+    </h2>
+    <div class="flex flex-col lg:flex-row gap-6 items-center mt-4"><div class="lg:w-1/2 overflow-x-auto"><svg viewBox="0 0 480 300" class="w-full h-auto" role="img" aria-label="VAN por escenario"><line x1="56" y1="231.4" x2="464" y2="231.4" stroke="rgba(255,255,255,.1)"/><rect x="93.4" y="231.4" width="61.2" height="20.6" rx="8" fill="#fb7185" opacity=".8"/><text x="124.0" y="270.0" font-size="12" font-weight="700" font-family="JetBrains Mono,monospace" fill="#fb7185" text-anchor="middle">$-123k</text><text x="124.0" y="286" font-size="11" font-family="Inter,sans-serif" fill="rgba(255,255,255,.3)" text-anchor="middle">pesimista</text><rect x="229.4" y="157.3" width="61.2" height="74.1" rx="8" fill="#818cf8" opacity=".8"/><text x="260.0" y="147.3" font-size="12" font-weight="700" font-family="JetBrains Mono,monospace" fill="#818cf8" text-anchor="middle">$444k</text><text x="260.0" y="286" font-size="11" font-family="Inter,sans-serif" fill="rgba(255,255,255,.3)" text-anchor="middle">base</text><rect x="365.4" y="30.0" width="61.2" height="201.4" rx="8" fill="#34d399" opacity=".8"/><text x="396.0" y="20.0" font-size="12" font-weight="700" font-family="JetBrains Mono,monospace" fill="#34d399" text-anchor="middle">$1.2M</text><text x="396.0" y="286" font-size="11" font-family="Inter,sans-serif" fill="rgba(255,255,255,.3)" text-anchor="middle">optimista</text></svg></div><div class="lg:w-1/2 text-white/50 text-sm leading-relaxed"><p>En el escenario <span class='text-white font-semibold'>base</span> recuperas la inversión en el <span class='text-white font-semibold'>mes 17</span> y dejas $443,796 de ganancia neta (VAN) a 3 años. Aguanta una caída de 20% en ventas o 30% más caro el equipo y sigue positivo.</p></div></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>Retorno por escenario
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><div class="grid sm:grid-cols-3 gap-4"><div class="spotlight-card card p-5">
+  <div class="relative z-10">
+    <span class="badge b-red">🔴 Pesimista</span>
+    <div class="text-2xl font-display font-bold text-white mt-3">$-123,253</div>
+    <div class="mt-3 space-y-2 text-sm">
+      <div class="flex justify-between items-center"><span class="text-white/30">TIR</span><span class="font-mono font-semibold text-white/70">-8%</span></div>
+      <div class="h-px bg-white/[0.03]"></div>
+      <div class="flex justify-between items-center"><span class="text-white/30">Recuperas</span><span class="font-mono font-semibold text-white/70">No se recupera</span></div>
+    </div>
+  </div>
+</div><div class="spotlight-card card p-5">
+  <div class="relative z-10">
+    <span class="badge b-yellow">🟡 Base</span>
+    <div class="text-2xl font-display font-bold text-white mt-3">$443,796</div>
+    <div class="mt-3 space-y-2 text-sm">
+      <div class="flex justify-between items-center"><span class="text-white/30">TIR</span><span class="font-mono font-semibold text-white/70">131%</span></div>
+      <div class="h-px bg-white/[0.03]"></div>
+      <div class="flex justify-between items-center"><span class="text-white/30">Recuperas</span><span class="font-mono font-semibold text-white/70">mes 17</span></div>
+    </div>
+  </div>
+</div><div class="spotlight-card card p-5">
+  <div class="relative z-10">
+    <span class="badge b-green">🟢 Optimista</span>
+    <div class="text-2xl font-display font-bold text-white mt-3">$1,206,518</div>
+    <div class="mt-3 space-y-2 text-sm">
+      <div class="flex justify-between items-center"><span class="text-white/30">TIR</span><span class="font-mono font-semibold text-white/70">427%</span></div>
+      <div class="h-px bg-white/[0.03]"></div>
+      <div class="flex justify-between items-center"><span class="text-white/30">Recuperas</span><span class="font-mono font-semibold text-white/70">mes 10</span></div>
+    </div>
+  </div>
+</div></div><div class="mt-4 text-sm text-white/40 rounded-xl p-4" style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04)">🟢 Negocio robusto: aguanta una caída de 20% en ventas o un encarecimiento de 30% del equipo importado y sigue siendo positivo. El equipo es revendible (el riesgo es comercial, no de capital).</div></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>Las cuentas en detalle
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><div class="grid md:grid-cols-2 gap-6">
+  <div><h3 class="font-display font-semibold text-white text-sm mb-3">Inversión (CAPEX)</h3><div class="rounded-xl overflow-hidden border border-white/[0.04]"><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Equipo: impresora FDM + resina + post-proceso</td><td class="num text-white/60">$45,000</td></tr><tr><td>Acondicionamiento del taller en casa</td><td class="num text-white/60">$15,000</td></tr><tr><td>Alta legal, contador, e.firma, permisos</td><td class="num text-white/60">$18,000</td></tr><tr><td>Marketing de lanzamiento</td><td class="num text-white/60">$12,000</td></tr><tr><td>Capital de trabajo inicial</td><td class="num text-white/60">$35,000</td></tr><tr><td>Equipo Etapa 2 (mes 6, para crecer)</td><td class="num text-white/60">$85,000</td></tr><tr><td>Reserva de imprevistos (10%)</td><td class="num text-white/60">$21,000</td></tr><tr style="background:rgba(255,255,255,0.02)"><td class="font-bold text-white">Inversión total</td><td class="num font-bold text-white font-display">$231,000</td></tr></table></div></div>
+  <div><h3 class="font-display font-semibold text-white text-sm mb-3">Gastos mensuales (OPEX)</h3><div class="rounded-xl overflow-hidden border border-white/[0.04]"><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Sueldo/retiro del fundador</td><td class="num text-white/60">$13,000</td></tr><tr><td>Contador</td><td class="num text-white/60">$1,500</td></tr><tr><td>Internet y teléfono</td><td class="num text-white/60">$700</td></tr><tr><td>Energía eléctrica (CFE, por confirmar 🔴)</td><td class="num text-white/60">$1,200</td></tr><tr><td>Marketing continuo</td><td class="num text-white/60">$2,500</td></tr><tr><td>Mantenimiento y refacciones</td><td class="num text-white/60">$1,200</td></tr><tr><td>Misceláneos</td><td class="num text-white/60">$900</td></tr><tr style="background:rgba(255,255,255,0.02)"><td class="font-bold text-white">OPEX / mes</td><td class="num font-bold text-white font-display">$21,000</td></tr></table></div><div class="mt-4 rounded-xl p-4 text-sm" style="background:rgba(52,211,153,0.04);border:1px solid rgba(52,211,153,0.08)"><span class="text-emerald-400">⚖️</span> <span class="text-white/60">Punto de equilibrio: <span class="text-white font-semibold">$26,250</span> de venta al mes.</span></div></div>
+</div></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>¿Cómo entra el socio?
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><div class="grid md:grid-cols-2 gap-4">
+  <div class="rounded-xl p-5" style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04)">
+    <div class="font-display font-semibold text-white text-sm">💵 Préstamo</div>
+    <p class="text-white/40 text-sm mt-2">Préstamo del socio con interés y plazo a convenir (el equipo sirve de garantía).</p>
+  </div>
+  <div class="rounded-xl p-5" style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04)">
+    <div class="font-display font-semibold text-white text-sm">📊 Socio</div>
+    <p class="text-white/40 text-sm mt-2">Socio capitalista a cambio de un % de participación; al volverse sociedad se ajusta el régimen fiscal.</p>
+  </div>
+</div></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>Riesgos (y cómo los cuidamos)
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><ul class="rlist"><li class="text-sm text-white/50">🟡 <b>Demanda B2B:</b> los clientes no llegan solos. Mitigación: regalar muestras funcionales (proof of concept) a ingenios y empresas locales.</li><li class="text-sm text-white/50">🟡 <b>Diseño CAD:</b> el fundador no domina el CAD. Mitigación: alianzas con freelance por comisión + capacitación diaria + aceptar solo archivos 3D iniciales.</li><li class="text-sm text-white/50">🟡 <b>Fluctuaciones Eléctricas (CFE):</b> un apagón arruina horas de trabajo. Mitigación: máquinas con Power Loss Recovery y UPS (No-Break) obligatorio.</li><li class="text-sm text-white/50">🟡 <b>Humedad Costera:</b> Cardel daña el filamento. Mitigación: cajas herméticas con sílica y secadores activos (Dry Box) durante impresión.</li><li class="text-sm text-white/50">🟡 <b>Paro de Máquina:</b> desgaste natural de boquillas/pantallas. Mitigación: tener refacciones (cold spares) en stock desde el día 1.</li><li class="text-sm text-white/50">🔴 <b>Manejo de Resina (Toxicidad):</b> peligro ambiental y salud. Mitigación: equipo de protección, ventilación y curado solar de residuos antes de desechar.</li><li class="text-sm text-white/50">🟢 <b>Propiedad intelectual:</b> política estricta de no imprimir piezas de seguridad automotriz ni elementos patentados vigentes.</li></ul></div>
+  </div>
+</section>
+<section class="spotlight-card card p-6 md:p-8 mt-6 reveal">
+  <div class="relative z-10">
+    <h2 class="text-lg md:text-xl font-display font-bold flex items-center gap-3">
+      <span class="inline-block w-1 h-5 rounded-full" style="background:#818cf8"></span>Por qué este proyecto
+    </h2>
+    <div class="mt-4 text-white/60 leading-relaxed text-[15px]"><ul class="rlist"><li class="text-sm text-white/50">Único taller de impresión 3D en el municipio (primero en llegar).</li><li class="text-sm text-white/50">Acceso a 4 motores económicos: puerto, CFE, ingenios cañeros, corredor industrial.</li><li class="text-sm text-white/50">Bajo riesgo de capital: arranca en casa y el equipo es revendible.</li><li class="text-sm text-white/50">Dossier 100% completo (11 sesiones de trabajo).</li></ul></div>
+  </div>
+</section>
+<section class="relative overflow-hidden rounded-2xl mt-10 p-8 md:p-12 text-center reveal" style="border:1px solid rgba(255,255,255,0.04)">
+  <div class="absolute inset-0 bg-gradient-to-br from-indigo-400 via-violet-500 to-purple-600 opacity-40"></div>
+  <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(7,7,8,0.6), transparent)"></div>
   <div class="relative">
-    <p class="uppercase tracking-[.18em] text-xs text-white/80">Ciudad Cardel, La Antigua, Veracruz</p>
-    <h1 class="text-3xl md:text-5xl font-extrabold text-white mt-2 leading-tight">🖨️ Impresión 3D Cardel</h1>
-    <p class="text-white/90 text-lg mt-3 max-w-2xl">Servicio de impresión 3D para prototipos y piezas a la medida (B2B) en Ciudad Cardel — el único en el municipio.</p>
-    <div class="mt-4 flex flex-wrap gap-2"><span class="badge b-green">🟢 Listo para presentar</span></div>
-  </div></section><div class="-mt-6 relative z-10 px-1"><div class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="card px-5 py-4">
-  <div class="text-2xl md:text-3xl font-display font-extrabold grad-text bg-gradient-to-r from-white to-slate-400">$231,000</div>
-  <div class="text-xs text-slate-400 mt-1">Inversión (MXN)</div></div><div class="card px-5 py-4">
-  <div class="text-2xl md:text-3xl font-display font-extrabold grad-text bg-gradient-to-r from-white to-slate-400">131%</div>
-  <div class="text-xs text-slate-400 mt-1">TIR anual (base)</div></div><div class="card px-5 py-4">
-  <div class="text-2xl md:text-3xl font-display font-extrabold grad-text bg-gradient-to-r from-white to-slate-400">17 meses</div>
-  <div class="text-xs text-slate-400 mt-1">Recuperas (payback)</div></div><div class="card px-5 py-4">
-  <div class="text-2xl md:text-3xl font-display font-extrabold grad-text bg-gradient-to-r from-white to-slate-400">+$444k</div>
-  <div class="text-xs text-slate-400 mt-1">VAN a 3 años</div></div></div></div><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>Resumen ejecutivo</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><p>Una <b>“papelería de piezas a la medida”</b>: el cliente trae una idea o un dibujo y se la entregamos impresa en 3D (plástico o resina). Enfoque B2B: talleres, ingenios cañeros, el puerto, diseñadores y arquitectos. Arranca en casa (etapa piloto, sin renta) para reducir riesgo. <b>No hay ningún taller de impresión 3D en el municipio</b> — ventaja de ser el primero.</p></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>🚀 Arranque mínimo (escalable)</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><p>La versión <b class="text-white">bootstrap</b>: como <b>ya tienen el local</b>, <b>no se pagan salarios</b> (ustedes operan) y arrancan <b>informal</b> (venta a particulares), se empieza con muy poco y se <b>crece reinvirtiendo</b> las ganancias. Al llegar los clientes de empresa, se formaliza.</p><div class="grid grid-cols-2 md:grid-cols-4 gap-3 my-5"><div class="rounded-xl bg-white/5 border border-white/10 p-4 text-center"><div class="text-xl font-display font-extrabold text-sky-300">$20,000</div><div class="text-xs text-slate-400 mt-1">Para empezar</div></div><div class="rounded-xl bg-white/5 border border-white/10 p-4 text-center"><div class="text-xl font-display font-extrabold text-sky-300">$2,564/mes</div><div class="text-xs text-slate-400 mt-1">Equilibrio</div></div><div class="rounded-xl bg-white/5 border border-white/10 p-4 text-center"><div class="text-xl font-display font-extrabold text-sky-300">Mes 5</div><div class="text-xs text-slate-400 mt-1">Recuperas</div></div><div class="rounded-xl bg-white/5 border border-white/10 p-4 text-center"><div class="text-xl font-display font-extrabold text-sky-300">+$37,140</div><div class="text-xs text-slate-400 mt-1">Ganancia 6 meses</div></div></div><div class="grid md:grid-cols-2 gap-6"><div><h3 class="font-semibold text-white mb-2">Inversión mínima (CAPEX)</h3><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Impresora FDM confiable (ej. Bambu Lab A1/P1S) 🟡</td><td class="num">$13,000</td></tr><tr><td>Filamento inicial (3-4 rollos PLA/PETG)</td><td class="num">$2,500</td></tr><tr><td>Post-proceso básico (lijas, espátula, pinzas, pegamento)</td><td class="num">$1,000</td></tr><tr><td>Marketing de arranque (muestras, lona, redes)</td><td class="num">$1,500</td></tr><tr><td>Reserva de material / imprevistos</td><td class="num">$2,000</td></tr><tr><td class="font-bold text-white">Inversión mínima</td><td class="num font-bold text-white">$20,000</td></tr></table></div><div><h3 class="font-semibold text-white mb-2">Gasto mensual mínimo (OPEX)</h3><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Luz (CFE, consumo de la impresora) 🟡</td><td class="num">$400</td></tr><tr><td>Mantenimiento (boquillas, refacciones)</td><td class="num">$400</td></tr><tr><td>Marketing continuo (redes, muestras)</td><td class="num">$800</td></tr><tr><td>Misceláneos</td><td class="num">$400</td></tr><tr><td class="font-bold text-white">OPEX / mes</td><td class="num font-bold text-white">$2,000</td></tr></table><div class="mt-3 rounded-xl bg-sky-500/10 border border-sky-500/25 p-3 text-sky-200 text-sm">⚖️ Equilibrio de solo <b>$2,564/mes</b> — facilísimo de alcanzar al no cargar renta ni sueldos.</div></div></div><h3 class="font-semibold text-white mt-7 mb-2">📊 Proyección puntual de 6 meses</h3><div class="grid md:grid-cols-2 gap-6 items-center"><div><table class="ptable"><tr><th>Mes</th><th class="num">Vende</th><th class="num">Gana</th><th class="num">Acumulado</th></tr><tr><td>Mes 1</td><td class="num">$3,000</td><td class="num">$340</td><td class="num text-rose-400">$-19,660</td></tr><tr><td>Mes 2</td><td class="num">$6,000</td><td class="num">$2,680</td><td class="num text-rose-400">$-16,980</td></tr><tr><td>Mes 3</td><td class="num">$9,000</td><td class="num">$5,020</td><td class="num text-rose-400">$-11,960</td></tr><tr><td>Mes 4</td><td class="num">$12,000</td><td class="num">$7,360</td><td class="num text-rose-400">$-4,600</td></tr><tr><td>Mes 5</td><td class="num">$15,000</td><td class="num">$9,700</td><td class="num text-emerald-400">$5,100</td></tr><tr><td>Mes 6</td><td class="num">$18,000</td><td class="num">$12,040</td><td class="num text-emerald-400">$17,140</td></tr></table></div><div class="overflow-x-auto"><div class="text-xs text-slate-400 mb-1">Camino a recuperar la inversión (acumulado)</div><svg viewBox="0 0 860 360" class="w-full h-auto" role="img" aria-label="Flujo de caja acumulado"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38bdf8" stop-opacity=".25"/><stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/></linearGradient></defs><line x1="80" y1="314.0" x2="834" y2="314.0" stroke="rgba(255,255,255,.07)"/><text x="70" y="318.0" font-size="12" fill="#64748b" text-anchor="end">$-23k</text><line x1="80" y1="241.5" x2="834" y2="241.5" stroke="rgba(255,255,255,.07)"/><text x="70" y="245.5" font-size="12" fill="#64748b" text-anchor="end">$-12k</text><line x1="80" y1="169.0" x2="834" y2="169.0" stroke="rgba(255,255,255,.07)"/><text x="70" y="173.0" font-size="12" fill="#64748b" text-anchor="end">$-1k</text><line x1="80" y1="96.5" x2="834" y2="96.5" stroke="rgba(255,255,255,.07)"/><text x="70" y="100.5" font-size="12" fill="#64748b" text-anchor="end">$9k</text><line x1="80" y1="24.0" x2="834" y2="24.0" stroke="rgba(255,255,255,.07)"/><text x="70" y="28.0" font-size="12" fill="#64748b" text-anchor="end">$20k</text><line x1="80" y1="159.4" x2="834" y2="159.4" stroke="rgba(255,255,255,.25)" stroke-dasharray="5 4"/><text x="80.0" y="346" font-size="12" fill="#64748b" text-anchor="middle">m0</text><text x="834.0" y="346" font-size="12" fill="#64748b" text-anchor="middle">m6</text><path d="M80.0,159.4 L80.0,294.0 L205.7,291.7 L331.3,273.7 L457.0,239.9 L582.7,190.3 L708.3,125.0 L834.0,44.0 L834.0,159.4 Z" fill="url(#ga)"/><polyline points="80.0,294.0 205.7,291.7 331.3,273.7 457.0,239.9 582.7,190.3 708.3,125.0 834.0,44.0" fill="none" stroke="#38bdf8" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round"/></svg></div></div><div class="mt-4 rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-4 text-emerald-200">✅ Recuperas la inversión en el <b>mes 5</b> y cierras el medio año con <b>+$37,140</b> acumulado, con riesgo bajísimo (no hay renta ni sueldos que pagar).</div></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>🗺️ Roadmap de 6 meses (lo idóneo con lo mínimo)</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><div class="mt-2"><div class="relative pl-10 pb-6 border-l border-white/10 last:pb-0"><div class="absolute -left-4 top-0 w-8 h-8 rounded-full bg-sky-500 text-white grid place-items-center font-bold shadow-glow">1</div><div class="card p-5"><div class="flex items-center gap-2"><span class="text-xl">🛠️</span><h3 class="font-bold text-white">Mes 1 · Montar y aprender</h3></div><ul class="rlist mt-2 text-sm"><li>Comprar la impresora y ponerla a punto en el local</li><li>Aprender el slicer + diseño básico (Tinkercad / FreeCAD), 10–15 h</li><li>Imprimir 10–15 piezas muestra (llaveros, organizadores, figuras)</li><li>Abrir WhatsApp Business + Facebook / Instagram / Marketplace</li></ul><div class="flex flex-wrap gap-2 mt-3 text-xs"><span class="badge b-green">🎯 Listos para vender, con portafolio físico</span><span class="badge b-blue">💵 La inversión inicial (~$20k)</span></div></div></div><div class="relative pl-10 pb-6 border-l border-white/10 last:pb-0"><div class="absolute -left-4 top-0 w-8 h-8 rounded-full bg-sky-500 text-white grid place-items-center font-bold shadow-glow">2</div><div class="card p-5"><div class="flex items-center gap-2"><span class="text-xl">📣</span><h3 class="font-bold text-white">Mes 2 · Primeras ventas (B2C fácil)</h3></div><ul class="rlist mt-2 text-sm"><li>Publicar el catálogo de muestras en redes y Marketplace</li><li>Vender piezas simples: llaveros, soportes, figuras, repuestos caseros</li><li>Pedir reseña y foto a cada cliente</li></ul><div class="flex flex-wrap gap-2 mt-3 text-xs"><span class="badge b-green">🎯 Primeros ~$6,000 en ventas; reinvertir en filamento</span><span class="badge b-blue">💵 ~$0 extra (se cubre con ventas)</span></div></div></div><div class="relative pl-10 pb-6 border-l border-white/10 last:pb-0"><div class="absolute -left-4 top-0 w-8 h-8 rounded-full bg-sky-500 text-white grid place-items-center font-bold shadow-glow">3</div><div class="card p-5"><div class="flex items-center gap-2"><span class="text-xl">🤝</span><h3 class="font-bold text-white">Mes 3 · Tocar puertas B2B</h3></div><ul class="rlist mt-2 text-sm"><li>Visitar talleres, ferreterías, ingenios y diseñadores con muestras en mano</li><li>Ofrecer refacciones discontinuadas y prototipos</li><li>Cotizar por WhatsApp con fotos</li><li>⚠️ Iniciar RFC / RESICO: los clientes B2B (ingenios, empresas) exigen factura</li></ul><div class="flex flex-wrap gap-2 mt-3 text-xs"><span class="badge b-green">🎯 2–3 clientes B2B; ventas ~$9,000</span><span class="badge b-blue">💵 Trámite SAT en línea ~$0</span></div></div></div><div class="relative pl-10 pb-6 border-l border-white/10 last:pb-0"><div class="absolute -left-4 top-0 w-8 h-8 rounded-full bg-sky-500 text-white grid place-items-center font-bold shadow-glow">4</div><div class="card p-5"><div class="flex items-center gap-2"><span class="text-xl">♻️</span><h3 class="font-bold text-white">Mes 4 · Reinvertir y subir calidad</h3></div><ul class="rlist mt-2 text-sm"><li>Con las ganancias: más filamento, mejor post-proceso o 2ª impresora si hay demanda</li><li>Formalizar la facturación (ya con ingreso que lo justifica)</li></ul><div class="flex flex-wrap gap-2 mt-3 text-xs"><span class="badge b-green">🎯 Ventas ~$12,000; inversión casi recuperada</span><span class="badge b-blue">💵 Reinversión de ganancias</span></div></div></div><div class="relative pl-10 pb-6 border-l border-white/10 last:pb-0"><div class="absolute -left-4 top-0 w-8 h-8 rounded-full bg-sky-500 text-white grid place-items-center font-bold shadow-glow">5</div><div class="card p-5"><div class="flex items-center gap-2"><span class="text-xl">📈</span><h3 class="font-bold text-white">Mes 5 · Consolidar</h3></div><ul class="rlist mt-2 text-sm"><li>Clientes recurrentes, precios ajustados y entregas confiables</li><li>Evaluar resina (detalle fino) si los clientes lo piden</li></ul><div class="flex flex-wrap gap-2 mt-3 text-xs"><span class="badge b-green">🎯 Ventas ~$15,000; ✅ inversión recuperada</span><span class="badge b-blue">💵 Opcional: resina ~$8k (de ganancias)</span></div></div></div><div class="relative pl-10 pb-6 border-l border-white/10 last:pb-0"><div class="absolute -left-4 top-0 w-8 h-8 rounded-full bg-sky-500 text-white grid place-items-center font-bold shadow-glow">6</div><div class="card p-5"><div class="flex items-center gap-2"><span class="text-xl">🚀</span><h3 class="font-bold text-white">Mes 6 · Decidir el salto</h3></div><ul class="rlist mt-2 text-sm"><li>Evaluar: seguir orgánico vs. dar el salto al plan formal ($231k con socio)</li><li>Sacar permisos pendientes, sitio web y catálogo formal</li></ul><div class="flex flex-wrap gap-2 mt-3 text-xs"><span class="badge b-green">🎯 Ventas ~$18,000; decisión de escalar</span><span class="badge b-blue">💵 Según la decisión</span></div></div></div></div></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>Cómo funciona (en 4 pasos)</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-2"><div class="relative card p-5 pt-7">
-  <div class="absolute -top-3 left-5 w-8 h-8 rounded-full bg-sky-500 text-white grid place-items-center font-bold shadow-glow">1</div>
-  <div class="text-2xl">💡</div><div class="font-semibold text-white mt-1">La idea</div>
-  <div class="text-sm text-slate-400">El cliente trae un dibujo, foto o la pieza rota.</div></div><div class="relative card p-5 pt-7">
-  <div class="absolute -top-3 left-5 w-8 h-8 rounded-full bg-sky-500 text-white grid place-items-center font-bold shadow-glow">2</div>
-  <div class="text-2xl">🖥️</div><div class="font-semibold text-white mt-1">Diseño CAD</div>
-  <div class="text-sm text-slate-400">La modelamos en 3D (o usa su archivo).</div></div><div class="relative card p-5 pt-7">
-  <div class="absolute -top-3 left-5 w-8 h-8 rounded-full bg-sky-500 text-white grid place-items-center font-bold shadow-glow">3</div>
-  <div class="text-2xl">🖨️</div><div class="font-semibold text-white mt-1">Impresión</div>
-  <div class="text-sm text-slate-400">Capa por capa en plástico o resina.</div></div><div class="relative card p-5 pt-7">
-  <div class="absolute -top-3 left-5 w-8 h-8 rounded-full bg-sky-500 text-white grid place-items-center font-bold shadow-glow">4</div>
-  <div class="text-2xl">📦</div><div class="font-semibold text-white mt-1">Entrega</div>
-  <div class="text-sm text-slate-400">Acabado, control de calidad y entrega en horas.</div></div></div></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>La oportunidad</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><p>Cardel es el cruce de caminos del centro de Veracruz: a 30 min del puerto, cerca de la CFE de Laguna Verde, ingenios azucareros y el corredor industrial. Muchos negocios necesitan refacciones discontinuadas, prototipos y piezas especiales y hoy tienen que pedirlas a Veracruz o Xalapa (30–90 min). Nosotros las hacemos local y rápido.</p></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>Cómo gana dinero</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><ul><li>Piezas y refacciones a la medida: <b>$150–$1,200</b> por pieza.</li><li>Prototipos y maquetas para diseñadores/arquitectos: <b>$250–$1,500</b>.</li><li>Lotes para ingenios y puerto: <b>$300–$3,000</b>.</li></ul><p>Margen bruto operativo alto (~82%); el costo variable de material es ~18% de la venta.</p></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>Oportunidades de Financiamiento</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><p>El proyecto es elegible para apalancamiento mediante <b>programas gubernamentales de Veracruz</b> (Fondo del Futuro, NAFIN), <b>Leasing (Arrendamiento Puro)</b> con deducción fiscal al 100%, o <b>Vendor Financing</b> a meses sin intereses directo con los fabricantes de impresoras, reduciendo la presión de capital inicial.</p></div></section><section class="card p-6 md:p-8 mt-6">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3"><span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>📈 Flujo de caja acumulado</h2>
-  <p class="text-slate-400 text-sm mt-2">Dinero neto acumulado mes a mes. Donde la línea cruza el cero, se recuperó la inversión.</p>
-  <div class="mt-4 overflow-x-auto"><svg viewBox="0 0 860 360" class="w-full h-auto" role="img" aria-label="Flujo de caja acumulado"><defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#38bdf8" stop-opacity=".25"/><stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/></linearGradient></defs><line x1="80" y1="314.0" x2="834" y2="314.0" stroke="rgba(255,255,255,.07)"/><text x="70" y="318.0" font-size="12" fill="#64748b" text-anchor="end">$-483k</text><line x1="80" y1="241.5" x2="834" y2="241.5" stroke="rgba(255,255,255,.07)"/><text x="70" y="245.5" font-size="12" fill="#64748b" text-anchor="end">$119k</text><line x1="80" y1="169.0" x2="834" y2="169.0" stroke="rgba(255,255,255,.07)"/><text x="70" y="173.0" font-size="12" fill="#64748b" text-anchor="end">$720k</text><line x1="80" y1="96.5" x2="834" y2="96.5" stroke="rgba(255,255,255,.07)"/><text x="70" y="100.5" font-size="12" fill="#64748b" text-anchor="end">$1.3M</text><line x1="80" y1="24.0" x2="834" y2="24.0" stroke="rgba(255,255,255,.07)"/><text x="70" y="28.0" font-size="12" fill="#64748b" text-anchor="end">$1.9M</text><line x1="80" y1="255.8" x2="834" y2="255.8" stroke="rgba(255,255,255,.25)" stroke-dasharray="5 4"/><text x="80.0" y="346" font-size="12" fill="#64748b" text-anchor="middle">m0</text><text x="205.7" y="346" font-size="12" fill="#64748b" text-anchor="middle">m6</text><text x="331.3" y="346" font-size="12" fill="#64748b" text-anchor="middle">m12</text><text x="457.0" y="346" font-size="12" fill="#64748b" text-anchor="middle">m18</text><text x="582.7" y="346" font-size="12" fill="#64748b" text-anchor="middle">m24</text><text x="708.3" y="346" font-size="12" fill="#64748b" text-anchor="middle">m30</text><text x="834.0" y="346" font-size="12" fill="#64748b" text-anchor="middle">m36</text><path d="M80.0,255.8 L80.0,273.4 L100.9,275.2 L121.9,276.3 L142.8,276.9 L163.8,276.9 L184.7,276.4 L205.7,285.7 L226.6,284.3 L247.6,282.6 L268.5,280.5 L289.4,278.2 L310.4,275.6 L331.3,272.7 L352.3,269.6 L373.2,266.3 L394.2,262.9 L415.1,259.3 L436.1,255.5 L457.0,251.6 L477.9,247.5 L498.9,243.4 L519.8,239.2 L540.8,234.8 L561.7,230.4 L582.7,225.9 L603.6,221.4 L624.6,216.8 L645.5,212.1 L666.4,207.4 L687.4,202.6 L708.3,197.8 L729.3,193.0 L750.2,188.1 L771.2,183.2 L792.1,178.3 L813.1,173.3 L834.0,168.3 L834.0,255.8 Z" fill="url(#ga)"/><polyline points="80.0,273.4 100.9,275.6 121.9,277.5 142.8,279.1 163.8,280.4 184.7,281.5 205.7,292.6 226.6,293.3 247.6,293.7 268.5,293.9 289.4,294.0 310.4,293.9 331.3,293.7 352.3,293.3 373.2,292.8 394.2,292.1 415.1,291.4 436.1,290.5 457.0,289.6 477.9,288.5 498.9,287.4 519.8,286.2 540.8,284.9 561.7,283.5 582.7,282.1 603.6,280.6 624.6,279.1 645.5,277.5 666.4,275.8 687.4,274.1 708.3,272.4 729.3,270.7 750.2,268.9 771.2,267.0 792.1,265.2 813.1,263.3 834.0,261.3" fill="none" stroke="#fb7185" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="80.0,273.4 100.9,274.6 121.9,274.5 142.8,273.5 163.8,271.4 184.7,268.6 205.7,275.3 226.6,271.0 247.6,266.3 268.5,261.0 289.4,255.2 310.4,249.1 331.3,242.7 352.3,235.9 373.2,228.9 394.2,221.6 415.1,214.1 436.1,206.5 457.0,198.6 477.9,190.7 498.9,182.6 519.8,174.4 540.8,166.0 561.7,157.7 582.7,149.2 603.6,140.6 624.6,132.1 645.5,123.4 666.4,114.7 687.4,106.0 708.3,97.2 729.3,88.4 750.2,79.6 771.2,70.7 792.1,61.8 813.1,52.9 834.0,44.0" fill="none" stroke="#34d399" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><polyline points="80.0,273.4 100.9,275.2 121.9,276.3 142.8,276.9 163.8,276.9 184.7,276.4 205.7,285.7 226.6,284.3 247.6,282.6 268.5,280.5 289.4,278.2 310.4,275.6 331.3,272.7 352.3,269.6 373.2,266.3 394.2,262.9 415.1,259.3 436.1,255.5 457.0,251.6 477.9,247.5 498.9,243.4 519.8,239.2 540.8,234.8 561.7,230.4 582.7,225.9 603.6,221.4 624.6,216.8 645.5,212.1 666.4,207.4 687.4,202.6 708.3,197.8 729.3,193.0 750.2,188.1 771.2,183.2 792.1,178.3 813.1,173.3 834.0,168.3" fill="none" stroke="#38bdf8" stroke-width="3.6" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
-  <div class="flex gap-5 text-sm text-slate-400 mt-3 flex-wrap">
-    <span><i class="inline-block w-3.5 h-1 rounded align-middle mr-1" style="background:#fb7185"></i>Pesimista</span>
-    <span><i class="inline-block w-3.5 h-1.5 rounded align-middle mr-1" style="background:#38bdf8"></i>Base</span>
-    <span><i class="inline-block w-3.5 h-1 rounded align-middle mr-1" style="background:#34d399"></i>Optimista</span>
-  </div></section><section class="card p-6 md:p-8 mt-6">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3"><span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>💰 VAN por escenario</h2>
-  <div class="flex flex-col lg:flex-row gap-6 items-center mt-4"><div class="lg:w-1/2 overflow-x-auto"><svg viewBox="0 0 480 300" class="w-full h-auto" role="img" aria-label="VAN por escenario"><line x1="56" y1="231.4" x2="464" y2="231.4" stroke="rgba(255,255,255,.2)"/><rect x="90.0" y="231.4" width="68.0" height="20.6" rx="6" fill="#fb7185" opacity=".9"/><text x="124.0" y="269.0" font-size="13" font-weight="700" fill="#fb7185" text-anchor="middle">$-123k</text><text x="124.0" y="286" font-size="12" fill="#94a3b8" text-anchor="middle">pesimista</text><rect x="226.0" y="157.3" width="68.0" height="74.1" rx="6" fill="#38bdf8" opacity=".9"/><text x="260.0" y="148.3" font-size="13" font-weight="700" fill="#38bdf8" text-anchor="middle">$444k</text><text x="260.0" y="286" font-size="12" fill="#94a3b8" text-anchor="middle">base</text><rect x="362.0" y="30.0" width="68.0" height="201.4" rx="6" fill="#34d399" opacity=".9"/><text x="396.0" y="21.0" font-size="13" font-weight="700" fill="#34d399" text-anchor="middle">$1.2M</text><text x="396.0" y="286" font-size="12" fill="#94a3b8" text-anchor="middle">optimista</text></svg></div><div class="lg:w-1/2 text-slate-300"><p>En el escenario <b class='text-white'>base</b> recuperas la inversión en el <b>mes 17</b> y dejas $443,796 de ganancia neta (VAN) a 3 años. Aguanta una caída de 20% en ventas o 30% más caro el equipo y sigue positivo. Si todo sale mal, la pérdida es limitada porque <b>el equipo se revende</b>.</p></div></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>💰 Retorno por escenario (incluye el que pierde)</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><div class="grid sm:grid-cols-3 gap-4"><div class="card p-5">
-  <span class="badge b-red">🔴 Pesimista</span>
-  <div class="text-2xl font-display font-extrabold text-white mt-3">$-123,253</div>
-  <div class="mt-2 space-y-1 text-sm text-slate-400">
-    <div class="flex justify-between"><span>TIR</span><b class="text-slate-200">-8%</b></div>
-    <div class="flex justify-between"><span>Recuperas</span><b class="text-slate-200">No se recupera</b></div>
-  </div></div><div class="card p-5">
-  <span class="badge b-yellow">🟡 Base</span>
-  <div class="text-2xl font-display font-extrabold text-white mt-3">$443,796</div>
-  <div class="mt-2 space-y-1 text-sm text-slate-400">
-    <div class="flex justify-between"><span>TIR</span><b class="text-slate-200">131%</b></div>
-    <div class="flex justify-between"><span>Recuperas</span><b class="text-slate-200">mes 17</b></div>
-  </div></div><div class="card p-5">
-  <span class="badge b-green">🟢 Optimista</span>
-  <div class="text-2xl font-display font-extrabold text-white mt-3">$1,206,518</div>
-  <div class="mt-2 space-y-1 text-sm text-slate-400">
-    <div class="flex justify-between"><span>TIR</span><b class="text-slate-200">427%</b></div>
-    <div class="flex justify-between"><span>Recuperas</span><b class="text-slate-200">mes 10</b></div>
-  </div></div></div><div class="mt-4 text-sm text-slate-300 rounded-xl bg-white/5 border border-white/10 p-4">🟢 Negocio robusto: aguanta una caída de 20% en ventas o un encarecimiento de 30% del equipo importado y sigue siendo positivo. El equipo es revendible (el riesgo es comercial, no de capital).</div></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>🧾 Las cuentas en detalle</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><div class="grid md:grid-cols-2 gap-6">
-  <div><h3 class="font-semibold text-white mb-2">Inversión (CAPEX)</h3><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Equipo: impresora FDM + resina + post-proceso</td><td class="num">$45,000</td></tr><tr><td>Acondicionamiento del taller en casa</td><td class="num">$15,000</td></tr><tr><td>Alta legal, contador, e.firma, permisos</td><td class="num">$18,000</td></tr><tr><td>Marketing de lanzamiento</td><td class="num">$12,000</td></tr><tr><td>Capital de trabajo inicial</td><td class="num">$35,000</td></tr><tr><td>Equipo Etapa 2 (mes 6, para crecer)</td><td class="num">$85,000</td></tr><tr><td>Reserva de imprevistos (10%)</td><td class="num">$21,000</td></tr><tr><td class="font-bold text-white">Inversión total</td><td class="num font-bold text-white">$231,000</td></tr></table></div>
-  <div><h3 class="font-semibold text-white mb-2">Gastos mensuales (OPEX)</h3><table class="ptable"><tr><th>Concepto</th><th class="num">Monto (MXN)</th></tr><tr><td>Sueldo/retiro del fundador</td><td class="num">$13,000</td></tr><tr><td>Contador</td><td class="num">$1,500</td></tr><tr><td>Internet y teléfono</td><td class="num">$700</td></tr><tr><td>Energía eléctrica (CFE, por confirmar 🔴)</td><td class="num">$1,200</td></tr><tr><td>Marketing continuo</td><td class="num">$2,500</td></tr><tr><td>Mantenimiento y refacciones</td><td class="num">$1,200</td></tr><tr><td>Misceláneos</td><td class="num">$900</td></tr><tr><td class="font-bold text-white">OPEX / mes</td><td class="num font-bold text-white">$21,000</td></tr></table><div class="mt-4 rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-4 text-emerald-200">⚖️ <b>Punto de equilibrio:</b> $26,250 de venta al mes para no perder.</div></div></div></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>🤝 ¿Cómo entra el socio?</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><div class="grid md:grid-cols-2 gap-4">
-  <div class="rounded-2xl bg-white/5 border border-white/10 p-5"><div class="font-semibold text-white">💵 Préstamo</div><p class="text-slate-400 text-sm mt-1">Préstamo del socio con interés y plazo a convenir (el equipo sirve de garantía).</p></div>
-  <div class="rounded-2xl bg-white/5 border border-white/10 p-5"><div class="font-semibold text-white">📊 Socio</div><p class="text-slate-400 text-sm mt-1">Socio capitalista a cambio de un % de participación; al volverse sociedad se ajusta el régimen fiscal.</p></div></div></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>⚠️ Riesgos (y cómo los cuidamos)</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><ul class="rlist"><li>🟡 <b>Demanda B2B:</b> los clientes no llegan solos. Mitigación: regalar muestras funcionales (proof of concept) a ingenios y empresas locales.</li><li>🟡 <b>Diseño CAD:</b> el fundador no domina el CAD. Mitigación: alianzas con freelance por comisión + capacitación diaria + aceptar solo archivos 3D iniciales.</li><li>🟡 <b>Fluctuaciones Eléctricas (CFE):</b> un apagón arruina horas de trabajo. Mitigación: máquinas con Power Loss Recovery y UPS (No-Break) obligatorio.</li><li>🟡 <b>Humedad Costera:</b> Cardel daña el filamento. Mitigación: cajas herméticas con sílica y secadores activos (Dry Box) durante impresión.</li><li>🟡 <b>Paro de Máquina:</b> desgaste natural de boquillas/pantallas. Mitigación: tener refacciones (cold spares) en stock desde el día 1.</li><li>🔴 <b>Manejo de Resina (Toxicidad):</b> peligro ambiental y salud. Mitigación: equipo de protección, ventilación y curado solar de residuos antes de desechar.</li><li>🟢 <b>Propiedad intelectual:</b> política estricta de no imprimir piezas de seguridad automotriz ni elementos patentados vigentes.</li></ul></div></section><section class="card p-6 md:p-8 mt-6 animate-fadeup">
-  <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3">
-    <span class="inline-block w-1.5 h-6 rounded bg-sky-400"></span>✅ Por qué este proyecto</h2>
-  <div class="mt-3 text-slate-300 leading-relaxed"><ul class="rlist"><li>Único taller de impresión 3D en el municipio (primero en llegar).</li><li>Acceso a 4 motores económicos: puerto, CFE, ingenios cañeros, corredor industrial.</li><li>Bajo riesgo de capital: arranca en casa y el equipo es revendible.</li><li>Dossier 100% completo (11 sesiones de trabajo).</li></ul></div></section><section class="rounded-3xl mt-8 p-8 md:p-10 text-center bg-gradient-to-br from-sky-500 via-indigo-500 to-indigo-800 shadow-card">
-  <h2 class="text-2xl md:text-3xl font-extrabold text-white">¿Hablamos de este proyecto?</h2>
-  <p class="text-white/90 mt-2"><b>Erik Hernández</b> · erikjosehernandez@gmail.com</p>
-  <a href="../index.html" class="btn bg-white text-slate-900 mt-4 hover:opacity-90">← Ver los demás proyectos</a></section></main><footer class="max-w-6xl mx-auto px-5 py-10 text-center text-xs text-slate-500">
-  Documento de trabajo para socios · Cifras en MXN · Modelo financiero determinista ·
-  <span class="text-emerald-400">🟢 verificado</span> · <span class="text-amber-400">🟡 por confirmar</span> ·
-  <span class="text-rose-400">🔴 estimación</span><br>Generado 2026-06-26</footer>
+    <h2 class="text-2xl md:text-3xl font-display font-bold text-white">¿Hablamos de este proyecto?</h2>
+    <p class="text-white/50 mt-3"><span class="text-white font-semibold">Erik Hernández</span> · <span class="font-mono text-sm">erikjosehernandez@gmail.com</span></p>
+    <a href="../index.html" class="btn-ghost mt-6 inline-flex">← Ver los demás proyectos</a>
+  </div>
+</section>
+</main>
+<footer class="max-w-5xl mx-auto px-6 py-16">
+  <div class="section-divider mb-10"></div>
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/25">
+    <div class="flex items-center gap-2">
+      <div class="w-5 h-5 rounded-md bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center">
+        <span class="font-bold text-white text-[7px]">EH</span>
+      </div>
+      <span class="font-display font-semibold tracking-wider uppercase">Portafolio de Inversión</span>
+    </div>
+    <div class="flex items-center gap-6">
+      <span>Cifras en MXN</span>
+      <span class="text-emerald-400/60">● verificado</span>
+      <span class="text-amber-400/60">● por confirmar</span>
+      <span class="text-rose-400/60">● estimación</span>
+    </div>
+    <span class="font-mono text-white/15">2026</span>
+  </div>
+</footer>
+  </div>
+
   <script>
-    // Cursor magnético
-    const cursor = document.getElementById('custom-cursor');
-    if (cursor) {
-      let mouse = { x: -100, y: -100 };
-      let pos = { x: -100, y: -100 };
-      const speed = 0.15;
-      document.addEventListener('mousemove', (e) => {
-        mouse.x = e.clientX;
-        mouse.y = e.clientY;
-      });
-      function animateCursor() {
-        const dx = mouse.x - pos.x;
-        const dy = mouse.y - pos.y;
-        pos.x += dx * speed;
-        pos.y += dy * speed;
-        const size = cursor.classList.contains('hover') ? 58 : 32;
-        cursor.style.transform = `translate3d(${pos.x - size/2}px, ${pos.y - size/2}px, 0)`;
-        requestAnimationFrame(animateCursor);
+    // ── Custom cursor with physics ──
+    const ring = document.getElementById('cursor-ring');
+    const dot = document.getElementById('cursor-dot');
+    if (ring && dot) {
+      let mx = -100, my = -100, rx = -100, ry = -100;
+      const sp = 0.12;
+      document.addEventListener('mousemove', ev => { mx = ev.clientX; my = ev.clientY; });
+      function tick() {
+        rx += (mx - rx) * sp;
+        ry += (my - ry) * sp;
+        const s = ring.classList.contains('hover') ? 56 : 28;
+        ring.style.transform = `translate3d(${rx - s/2}px,${ry - s/2}px,0)`;
+        dot.style.transform = `translate3d(${mx - 2}px,${my - 2}px,0)`;
+        requestAnimationFrame(tick);
       }
-      requestAnimationFrame(animateCursor);
-      
-      const setupHover = () => {
-        const interactives = document.querySelectorAll('a, button, [role="button"], .interactive-element');
-        interactives.forEach(el => {
-          el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-          el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
-        });
-      };
-      setupHover();
+      requestAnimationFrame(tick);
+      document.querySelectorAll('a,button,[role="button"],.interactive').forEach(el => {
+        el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+        el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+      });
     }
-    // Spotlight
-    const cards = document.querySelectorAll('.bento-card, .project-card, .premium-card, .card');
-    cards.forEach(card => {
-      let frameId = null;
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        if (frameId) cancelAnimationFrame(frameId);
-        frameId = requestAnimationFrame(() => {
-          card.style.setProperty('--mouse-x', `${x}px`);
-          card.style.setProperty('--mouse-y', `${y}px`);
-        });
+
+    // ── Card spotlight ──
+    document.querySelectorAll('.spotlight-card').forEach(c => {
+      c.addEventListener('mousemove', ev => {
+        const r = c.getBoundingClientRect();
+        c.style.setProperty('--mx', `${ev.clientX - r.left}px`);
+        c.style.setProperty('--my', `${ev.clientY - r.top}px`);
       });
-      card.addEventListener('mouseleave', () => {
-        if (frameId) cancelAnimationFrame(frameId);
-        requestAnimationFrame(() => {
-          card.style.removeProperty('--mouse-x');
-          card.style.removeProperty('--mouse-y');
-        });
+      c.addEventListener('mouseleave', () => {
+        c.style.removeProperty('--mx');
+        c.style.removeProperty('--my');
       });
     });
-    // Revelar elementos
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
-      }, 100);
-    });
+
+    // ── Scroll reveal with IntersectionObserver ──
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('active'), i * 60);
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    // ── Smooth nav background ──
+    const nav = document.querySelector('.nav-bar');
+    if (nav) {
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            nav.classList.toggle('scrolled', window.scrollY > 60);
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
+    }
   </script>
 </body></html>
