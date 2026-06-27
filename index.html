@@ -1,83 +1,835 @@
-﻿<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Inteligencia Forense: Dashboard</title>
-  <link rel="stylesheet" href="forensic.css">
-</head>
-<body>
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portafolio de Inversión · Erik Hernández</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tw.css">
+<style>
+  /* ═══ BASE ═══ */
+  body {
+    background-color: #070708;
+    cursor: none;
+    overflow-x: hidden;
+  }
 
-  <!-- NAVBAR -->
-  <nav class="navbar">
-    <div class="container">
-      <a href="index.html" class="navbar-brand">NEXUS // FORENSE</a>
-      <div class="nav-links">
-        <a href="dossier-01-paradoja.html">01. Paradoja</a>
-        <a href="dossier-02-adquisicion.html">02. Adquisición</a>
-        <a href="dossier-03-logistica.html">03. Logística</a>
-        <a href="dossier-04-roadmap.html">04. Roadmap</a>
-        <a href="dossier-05-tecnologia.html">05. Tecnología</a>
+  /* ═══ PARTICLE CANVAS ═══ */
+  #particle-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ═══ FLOATING GRADIENT ORBS ═══ */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    will-change: transform;
+    transition: transform 0.3s ease-out;
+  }
+  .orb-1 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(129,140,248,0.08), transparent 70%);
+    top: -10%; left: -5%;
+  }
+  .orb-2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(192,132,252,0.06), transparent 70%);
+    top: 30%; right: -10%;
+  }
+  .orb-3 {
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(52,211,153,0.05), transparent 70%);
+    bottom: 10%; left: 20%;
+  }
+
+  /* ═══ MOUSE GLOW ═══ */
+  #mouse-glow {
+    position: fixed;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(129,140,248,0.04), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+    transform: translate(-50%,-50%) translate3d(-999px,-999px,0);
+    will-change: transform;
+    transition: opacity 0.3s ease;
+  }
+
+  /* ═══ SCROLL PROGRESS BAR ═══ */
+  #scroll-progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #eab308, #4ade80, #22d3ee);
+    z-index: 9999;
+    width: 0%;
+    transition: width 0.05s linear;
+    box-shadow: 0 0 15px rgba(234,179,8,0.8);
+  }
+
+  /* ═══ SCANLINES & HALFTONE ═══ */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: 
+      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 2px, 3px 100%;
+    opacity: 0.8;
+  }
+  .halftone-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(234,179,8,0.1) 1px, transparent 1.5px);
+    background-size: 20px 20px;
+    opacity: 0.3;
+  }
+
+  /* ═══ NOISE TEXTURE ═══ */
+  .noise-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.03;
+  }
+
+  /* ═══ MECHA CROSSHAIR CURSOR ═══ */
+  .custom-cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 40px; height: 40px;
+    border: 1px solid rgba(234,179,8,0.4);
+    pointer-events: none;
+    z-index: 10000;
+    transform: translate3d(-100px,-100px,0);
+    transition: width 0.1s, height 0.1s, border-color 0.1s;
+    will-change: transform;
+    clip-path: polygon(0 20%, 20% 0, 80% 0, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0 80%);
+  }
+  .custom-cursor::before, .custom-cursor::after {
+    content: '';
+    position: absolute;
+    background: rgba(234,179,8,0.6);
+  }
+  .custom-cursor::before { top: 50%; left: -10px; right: -10px; height: 1px; }
+  .custom-cursor::after { left: 50%; top: -10px; bottom: -10px; width: 1px; }
+  
+  .cursor-dot {
+    position: fixed;
+    top: 0; left: 0;
+    width: 4px; height: 4px;
+    background: #eab308;
+    pointer-events: none;
+    z-index: 10001;
+    transform: translate3d(-100px,-100px,0) rotate(45deg);
+    will-change: transform;
+    box-shadow: 0 0 10px #eab308;
+  }
+  @media (max-width: 768px) {
+    .custom-cursor, .cursor-dot, #mouse-glow { display: none !important; }
+    body { cursor: auto !important; }
+    #particle-canvas { display: none; }
+  }
+  .custom-cursor.hover {
+    width: 50px; height: 50px;
+    border-color: #22d3ee;
+  }
+  .custom-cursor.hover::before, .custom-cursor.hover::after {
+    background: #22d3ee;
+  }
+
+  /* ═══ CARD SPOTLIGHT + TILT ═══ */
+  .spotlight-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    border-radius: 0; /* Sharp edges */
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+    border: 1px solid rgba(234,179,8,0.1);
+  }
+  .spotlight-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(450px circle at var(--mx,-999px) var(--my,-999px),
+      rgba(234,179,8,0.1), transparent 65%);
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .spotlight-card:hover::before { opacity: 1; }
+  .spotlight-card:hover {
+    border-color: rgba(234,179,8,0.4) !important;
+    box-shadow: inset 0 0 20px rgba(234,179,8,0.1);
+  }
+
+  /* ═══ SCROLL REVEAL ═══ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(35px);
+    transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1),
+                transform 0.9s cubic-bezier(0.16,1,0.3,1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ═══ PARALLAX ELEMENTS ═══ */
+  [data-parallax] {
+    will-change: transform;
+    transition: transform 0.1s linear;
+  }
+
+  /* ═══ ANIMATED SHIMMER LINE ═══ */
+  .shimmer-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(129,140,248,0.3), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes aurora {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ═══ STAGGER DELAYS ═══ */
+  .delay-1 { transition-delay: 80ms; animation-delay: 80ms; }
+  .delay-2 { transition-delay: 160ms; animation-delay: 160ms; }
+  .delay-3 { transition-delay: 240ms; animation-delay: 240ms; }
+  .delay-4 { transition-delay: 320ms; animation-delay: 320ms; }
+  .delay-5 { transition-delay: 400ms; animation-delay: 400ms; }
+  .delay-6 { transition-delay: 480ms; animation-delay: 480ms; }
+
+  /* ═══ MAGNETIC HOVER ═══ */
+  .magnetic {
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+  }
+
+  /* ═══ PROJECT CARD ═══ */
+  .project-card .card-gradient {
+    transition: opacity 0.5s ease, transform 0.8s cubic-bezier(0.16,1,0.3,1);
+  }
+  .project-card:hover .card-gradient {
+    opacity: 0.95;
+    transform: scale(1.08);
+  }
+
+  /* ═══ GRADIENT BORDER ═══ */
+  .gradient-border::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(129,140,248,0.3), transparent 50%, rgba(192,132,252,0.2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* ═══ SCROLL INDICATOR PULSE ═══ */
+  .scroll-indicator {
+    animation: scrollBounce 2s ease-in-out infinite;
+  }
+  @keyframes scrollBounce {
+    0%,100% { transform: translateY(0); opacity: 0.4; }
+    50% { transform: translateY(8px); opacity: 0.8; }
+  }
+
+  .scroll-chips { scrollbar-width: none; }
+  .scroll-chips::-webkit-scrollbar { display: none; }
+</style>
+</head><body class="min-h-screen antialiased pb-10">
+  <!-- Scroll Progress -->
+  <div id="scroll-progress"></div>
+  <!-- Particle Canvas -->
+  <canvas id="particle-canvas"></canvas>
+  <!-- Floating Gradient Orbs -->
+  <div class="orb orb-1" id="orb1"></div>
+  <div class="orb orb-2" id="orb2"></div>
+  <div class="orb orb-3" id="orb3"></div>
+  <!-- Mouse Glow -->
+  <div id="mouse-glow"></div>
+  <!-- Grid overlay -->
+  <div class="grid-overlay" id="grid-ov"></div>
+  <!-- Noise texture -->
+  <svg class="noise-overlay" xmlns="http://www.w3.org/2000/svg">
+    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#noise)"/>
+  </svg>
+  <!-- Cursors -->
+  <div id="cursor-ring" class="custom-cursor"></div>
+  <div id="cursor-dot" class="cursor-dot"></div>
+
+  <div class="relative z-10">
+  <header class="fixed top-0 left-0 right-0 z-50 px-4 pt-5">
+  <nav class="nav-bar max-w-5xl mx-auto backdrop-blur-xl bg-surface-0/50 border border-white/[0.04] rounded-2xl py-2.5 px-5 flex items-center justify-between transition-all duration-500" style="box-shadow:0 8px 40px -12px rgba(0,0,0,.5)">
+    <div class="flex items-center gap-3">
+      <div class="relative w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-glow-sm magnetic">
+        <span class="font-display font-bold text-white text-[10px]">EH</span>
       </div>
+      <a href="index.html" class="font-display font-bold text-white text-xs tracking-[.15em] uppercase hover:text-accent-bright transition-colors duration-300 magnetic interactive">Portafolio</a>
+    </div>
+    <div class="hidden md:flex items-center gap-8 text-[11px] font-semibold tracking-[.12em] uppercase text-white/40">
+      <a href="index.html" class="hover:text-white transition-colors duration-300 relative group magnetic interactive">
+        Inicio
+        <span class="absolute -bottom-1 left-0 w-0 h-px bg-accent group-hover:w-full transition-all duration-300"></span>
+      </a>
+      <a href="index.html#oportunidades" class="hover:text-white transition-colors duration-300 relative group magnetic interactive">
+        Proyectos
+        <span class="absolute -bottom-1 left-0 w-0 h-px bg-accent group-hover:w-full transition-all duration-300"></span>
+      </a>
+    </div>
+    <div class="flex items-center gap-2 rounded-full py-1.5 px-3 magnetic interactive" style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.12)">
+      <span class="relative flex h-1.5 w-1.5">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+      </span>
+      <span class="text-[9px] uppercase tracking-[.15em] font-bold text-emerald-300/80">Live</span>
     </div>
   </nav>
+</header>
+<main class="max-w-5xl mx-auto px-5 pt-28">
+<section class="relative overflow-hidden mt-6 reveal" style="border:1px solid rgba(234,179,8,0.2); background:rgba(5,5,5,0.8); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);">
+  <!-- Ambient Mecha Glow -->
+  <div class="absolute inset-0 scanlines-overlay"></div>
+  <div class="absolute -right-32 -top-32 w-[500px] h-[500px] rounded-full blur-3xl animate-breathe" data-parallax="0.1" style="background:radial-gradient(circle, rgba(234,179,8,0.06), transparent 70%)"></div>
+  <div class="absolute -left-32 bottom-0 w-96 h-96 rounded-full blur-3xl opacity-50 animate-breathe" data-parallax="-0.05" style="animation-delay:2s;background:radial-gradient(circle, rgba(34,211,238,0.04), transparent 70%)"></div>
 
-  <!-- HERO SECTION -->
-  <header class="hero">
-    <div class="container hero-content">
-      <span class="badge red">TOP SECRET // CLEARANCE: ALPHA</span>
-      <h1>La Asimetría del Polímero</h1>
-      <p class="mono text-cyan">> SISTEMA_CENTRAL_V4.0<br>> ANALIZANDO_AMENAZA: MANUFACTURA_HÍBRIDA_3D_ESCALADA</p>
-      <p>Base de datos de inteligencia sobre cómo la fusión de la impresión 3D, el Mecanizado Electroquímico (ECM) y el vacío legal de los componentes de doble uso están reescribiendo la logística del mercado negro armamentístico.</p>
+  <div class="relative p-10 md:p-16">
+    <!-- Eyebrow -->
+    <div class="inline-flex items-center gap-2 rounded-sm py-1.5 px-4 mb-6 reveal delay-1" data-parallax="0.15" style="background:rgba(234,179,8,0.05);border-left:4px solid #eab308; border-right:1px solid rgba(234,179,8,0.2); border-top:1px solid rgba(234,179,8,0.2); border-bottom:1px solid rgba(234,179,8,0.2);">
+      <span class="font-mono text-[10px] tracking-widest uppercase text-accent-bright">SYS.LOG // アンチグラビティ // 5 REAL OPS</span>
     </div>
-  </header>
 
-  <!-- DASHBOARD -->
-  <section class="section" style="padding-top: 0;">
-    <div class="container reveal">
-      <h2 style="font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan); font-size: 1.5rem; margin-bottom: 20px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 10px;">> ARCHIVOS DESCLASIFICADOS (SELECCIONE DOSSIER)</h2>
-      
-      <div class="dashboard-grid">
-        
-        <a href="dossier-01-paradoja.html" class="dossier-card">
-          <span class="dossier-number">01</span>
-          <span class="badge">DOCTRINA BÁSICA</span>
-          <h3>La Paradoja del 80/20</h3>
-          <p>Análisis forense del diseño híbrido: por qué el polímero es solo un vector para mecanizar metal y no la letalidad en sí misma.</p>
-        </a>
-
-        <a href="dossier-02-adquisicion.html" class="dossier-card">
-          <span class="dossier-number">02</span>
-          <span class="badge">MANUFACTURA</span>
-          <h3>Adquisición y Montaje</h3>
-          <p>La "Lista de Compras Ciega": Tubos DIN 2391, Muelles ISO y pegamento Epoxi. Cómo evaden los algoritmos AML/KYC.</p>
-        </a>
-
-        <a href="dossier-03-logistica.html" class="dossier-card">
-          <span class="dossier-number">03</span>
-          <span class="badge red">LATENCIA LOGÍSTICA</span>
-          <h3>El Vacío Legal: 7 Días</h3>
-          <p>Flujo cronológico demostrando que la adquisición es completamente legal hasta el cruce de la línea en el ensamblaje final.</p>
-        </a>
-
-        <a href="dossier-04-roadmap.html" class="dossier-card">
-          <span class="dossier-number">04</span>
-          <span class="badge red">PROYECCIÓN TÁCTICA</span>
-          <h3>Roadmap: Escala Industrial</h3>
-          <p>Cómo el crimen organizado ha estandarizado procesos de manufactura (SOPs) para escalar la producción en 4 fases evolutivas off-grid.</p>
-        </a>
-
-        <a href="dossier-05-tecnologia.html" class="dossier-card">
-          <span class="dossier-number">05</span>
-          <span class="badge">INTELIGENCIA CAMPO</span>
-          <h3>Mecanizado ECM y Economía</h3>
-          <p>Deep-dive en la electrólisis balística, estudios de caso en España/Myanmar y el desplome radical del costo marginal criminal.</p>
-        </a>
-
+    <!-- Title -->
+    <h1 class="text-4xl md:text-7xl font-display font-bold tracking-tight leading-[1.05] uppercase reveal delay-2" data-parallax="0.2">
+      <div class="relative inline-block text-white mb-2">
+        <span class="absolute inset-0 text-accent animate-glitch opacity-70" style="animation-delay: -0.1s; left: 2px;">PORTAFOLIO DE</span>
+        <span class="absolute inset-0 text-neon-cyan animate-glitch opacity-70" style="animation-delay: -0.2s; left: -2px;">PORTAFOLIO DE</span>
+        <span class="relative">PORTAFOLIO DE</span>
+      </div><br>
+      <div class="flex items-center gap-4">
+        <span class="text-accent drop-shadow-glow">INVERSIÓN</span>
+        <span class="text-xs font-mono text-neon-cyan/50 tracking-widest mt-6 hidden md:block">投資ポートフォリオ</span>
       </div>
-    </div>
-  </section>
+    </h1>
 
-  <script src="report.js"></script>
-</body>
-</html>
+    <!-- Subtitle -->
+    <p class="text-white/40 text-base md:text-lg mt-5 max-w-2xl font-mono leading-relaxed reveal delay-3" data-parallax="0.1">> Cinco proyectos reales en Veracruz y Campeche, con números honestos (incluido el escenario que puede perder).</p>
+
+    <!-- Tags -->
+    <div class="mt-7 flex flex-wrap gap-2 reveal delay-4" data-parallax="0.05">
+      <span class="chip magnetic interactive" style="border-radius:0; border:1px solid rgba(234,179,8,0.3); background:rgba(234,179,8,0.05); color:#fef08a;">[ CORRIDAS_FINANCIERAS ]</span>
+      <span class="chip magnetic interactive" style="border-radius:0; border:1px solid rgba(34,211,238,0.3); background:rgba(34,211,238,0.05); color:#a5f3fc;">[ ESCENARIOS_HONESTOS ]</span>
+      <span class="chip font-mono magnetic interactive" style="border-radius:0; border:1px solid rgba(192,132,252,0.3); background:rgba(192,132,252,0.05); color:#e9d5ff;">[ MXN_$ ]</span>
+    </div>
+
+    <!-- Shimmer line -->
+    <div class="mt-10 h-px bg-gradient-to-r from-accent via-neon-cyan to-transparent opacity-50 reveal delay-5"></div>
+  </div>
+</section>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+  <div class="spotlight-card card px-5 py-6 text-center reveal delay-1">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">5</div>
+    <div class="text-[10px] font-semibold uppercase tracking-[.12em] text-white/25 mt-1.5">proyectos</div>
+  </div>
+</div><div class="spotlight-card card px-5 py-6 text-center reveal delay-2">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">$0</div>
+    <div class="text-[10px] font-semibold uppercase tracking-[.12em] text-white/25 mt-1.5">costo herramientas</div>
+  </div>
+</div>
+  <div class="spotlight-card card px-5 py-6 text-center reveal delay-3">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">3</div>
+    <div class="text-[10px] font-semibold uppercase tracking-[.12em] text-white/25 mt-1.5">escenarios c/u</div>
+  </div>
+</div><div class="spotlight-card card px-5 py-6 text-center reveal delay-4">
+  <div class="relative z-10">
+    <div class="text-2xl md:text-3xl font-display font-bold grad-text">100%</div>
+    <div class="text-[10px] font-semibold uppercase tracking-[.12em] text-white/25 mt-1.5">verificable</div>
+  </div>
+</div>
+</div>
+<div class="mt-16 mb-8 reveal" id="oportunidades">
+  <div class="flex items-center gap-4">
+    <div class="w-1 h-6 rounded-full bg-accent"></div>
+    <h2 class="text-xl md:text-2xl font-display font-bold text-white">Las oportunidades</h2>
+  </div>
+  <p class="text-white/25 text-sm mt-2 ml-5 font-light">Cada proyecto con su corrida financiera honesta.</p>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+<a href="html/agtech-cultivo-ia.html" class="group spotlight-card project-card card overflow-hidden flex flex-col justify-between min-h-[360px] reveal delay-1 magnetic interactive">
+  <div class="relative z-10">
+    <!-- Header -->
+    <div class="relative h-24 overflow-hidden -mx-px -mt-px border-b border-white/5" style="background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);">
+      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 to-transparent"></div>
+      <div class="absolute top-3 right-4 font-mono text-[10px] text-white/20">FILE_NO.01</div>
+      <div class="absolute bottom-3 left-5 text-4xl drop-shadow-lg">🌱</div>
+    </div>
+
+    <!-- Body -->
+    <div class="p-5 pt-4">
+      <span class="inline-block px-2 py-1 text-[9px] font-mono tracking-widest uppercase border" style="border-color:#34d39940; color:#34d399; background:#34d39910">🟡 Proyecto nuevo</span>
+      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent transition-colors duration-300">AgTech: Cultivo de Precisión con IA</h3>
+      <p class="text-[10px] font-mono text-neon-cyan/40 mt-1 uppercase">データログ</p>
+      <p class="text-xs text-white/25 mt-2 line-clamp-2 font-mono leading-relaxed">Sistema de sensores + IA que controla clima, riego y detecta plagas en agricultura protegida legal (tomate, fresa, lechuga). Mercado virgen en Veracruz.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="p-5 pt-0 relative z-10">
+    <div class="grid grid-cols-2 gap-2 mb-4"><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Inversión (MXN)</div><div class="font-display font-bold text-white text-sm mt-0.5">$111,100</div></div><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">TIR anual (base)</div><div class="font-display font-bold text-white text-sm mt-0.5">108%</div></div></div>
+    <div class="flex items-center justify-between text-[11px] font-mono tracking-widest uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#34d399">
+      <span>>>> ACCESS_LOG</span>
+      <span class="opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">_</span>
+    </div>
+  </div>
+</a>
+<a href="html/impresion-3d.html" class="group spotlight-card project-card card overflow-hidden flex flex-col justify-between min-h-[360px] reveal delay-2 magnetic interactive">
+  <div class="relative z-10">
+    <!-- Header -->
+    <div class="relative h-24 overflow-hidden -mx-px -mt-px border-b border-white/5" style="background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);">
+      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 to-transparent"></div>
+      <div class="absolute top-3 right-4 font-mono text-[10px] text-white/20">FILE_NO.02</div>
+      <div class="absolute bottom-3 left-5 text-4xl drop-shadow-lg">🖨️</div>
+    </div>
+
+    <!-- Body -->
+    <div class="p-5 pt-4">
+      <span class="inline-block px-2 py-1 text-[9px] font-mono tracking-widest uppercase border" style="border-color:#818cf840; color:#818cf8; background:#818cf810">🟢 Listo para presentar</span>
+      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent transition-colors duration-300">Impresión 3D Cardel</h3>
+      <p class="text-[10px] font-mono text-neon-cyan/40 mt-1 uppercase">データログ</p>
+      <p class="text-xs text-white/25 mt-2 line-clamp-2 font-mono leading-relaxed">Servicio de impresión 3D para prototipos y piezas a la medida (B2B) en Ciudad Cardel — el único en el municipio.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="p-5 pt-0 relative z-10">
+    <div class="grid grid-cols-2 gap-2 mb-4"><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Inversión (MXN)</div><div class="font-display font-bold text-white text-sm mt-0.5">$231,000</div></div><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">TIR anual (base)</div><div class="font-display font-bold text-white text-sm mt-0.5">131%</div></div></div>
+    <div class="flex items-center justify-between text-[11px] font-mono tracking-widest uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#818cf8">
+      <span>>>> ACCESS_LOG</span>
+      <span class="opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">_</span>
+    </div>
+  </div>
+</a>
+<a href="html/mercadito.html" class="group spotlight-card project-card card overflow-hidden flex flex-col justify-between min-h-[360px] reveal delay-3 magnetic interactive">
+  <div class="relative z-10">
+    <!-- Header -->
+    <div class="relative h-24 overflow-hidden -mx-px -mt-px border-b border-white/5" style="background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);">
+      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 to-transparent"></div>
+      <div class="absolute top-3 right-4 font-mono text-[10px] text-white/20">FILE_NO.03</div>
+      <div class="absolute bottom-3 left-5 text-4xl drop-shadow-lg">🥤</div>
+    </div>
+
+    <!-- Body -->
+    <div class="p-5 pt-4">
+      <span class="inline-block px-2 py-1 text-[9px] font-mono tracking-widest uppercase border" style="border-color:#fb923c40; color:#fb923c; background:#fb923c10">🟡 Listo (falta validar demanda)</span>
+      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent transition-colors duration-300">Mercadito Fin de Semana</h3>
+      <p class="text-[10px] font-mono text-neon-cyan/40 mt-1 uppercase">データログ</p>
+      <p class="text-xs text-white/25 mt-2 line-clamp-2 font-mono leading-relaxed">Puesto de bebidas frías y antojitos junto al baño de un tianguis nuevo, con agua propia de purificadora.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="p-5 pt-0 relative z-10">
+    <div class="grid grid-cols-2 gap-2 mb-4"><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Inversión (MXN)</div><div class="font-display font-bold text-white text-sm mt-0.5">$5,900</div></div><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Ganancia (base)</div><div class="font-display font-bold text-white text-sm mt-0.5">$3,469/mes</div></div></div>
+    <div class="flex items-center justify-between text-[11px] font-mono tracking-widest uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#fb923c">
+      <span>>>> ACCESS_LOG</span>
+      <span class="opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">_</span>
+    </div>
+  </div>
+</a>
+<a href="html/taller-motos.html" class="group spotlight-card project-card card overflow-hidden flex flex-col justify-between min-h-[360px] reveal delay-4 magnetic interactive">
+  <div class="relative z-10">
+    <!-- Header -->
+    <div class="relative h-24 overflow-hidden -mx-px -mt-px border-b border-white/5" style="background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);">
+      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 to-transparent"></div>
+      <div class="absolute top-3 right-4 font-mono text-[10px] text-white/20">FILE_NO.04</div>
+      <div class="absolute bottom-3 left-5 text-4xl drop-shadow-lg">🏍️</div>
+    </div>
+
+    <!-- Body -->
+    <div class="p-5 pt-4">
+      <span class="inline-block px-2 py-1 text-[9px] font-mono tracking-widest uppercase border" style="border-color:#f0abfc40; color:#f0abfc; background:#f0abfc10">🟡 Proyecto nuevo</span>
+      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent transition-colors duration-300">Taller de Motos con Convenios</h3>
+      <p class="text-[10px] font-mono text-neon-cyan/40 mt-1 uppercase">データログ</p>
+      <p class="text-xs text-white/25 mt-2 line-clamp-2 font-mono leading-relaxed">Taller de mantenimiento de motos en Cardel, con ingreso recurrente vía convenios con flotas de reparto y renting.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="p-5 pt-0 relative z-10">
+    <div class="grid grid-cols-2 gap-2 mb-4"><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Inversión (MXN)</div><div class="font-display font-bold text-white text-sm mt-0.5">$146,300</div></div><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">TIR anual (base)</div><div class="font-display font-bold text-white text-sm mt-0.5">36%</div></div></div>
+    <div class="flex items-center justify-between text-[11px] font-mono tracking-widest uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#f0abfc">
+      <span>>>> ACCESS_LOG</span>
+      <span class="opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">_</span>
+    </div>
+  </div>
+</a>
+<a href="html/acuicola.html" class="group spotlight-card project-card card overflow-hidden flex flex-col justify-between min-h-[360px] reveal delay-5 magnetic interactive">
+  <div class="relative z-10">
+    <!-- Header -->
+    <div class="relative h-24 overflow-hidden -mx-px -mt-px border-b border-white/5" style="background: repeating-linear-gradient(45deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 2px, transparent 2px, transparent 10px);">
+      <div class="absolute inset-0 bg-gradient-to-t from-surface-1 to-transparent"></div>
+      <div class="absolute top-3 right-4 font-mono text-[10px] text-white/20">FILE_NO.05</div>
+      <div class="absolute bottom-3 left-5 text-4xl drop-shadow-lg">🐟</div>
+    </div>
+
+    <!-- Body -->
+    <div class="p-5 pt-4">
+      <span class="inline-block px-2 py-1 text-[9px] font-mono tracking-widest uppercase border" style="border-color:#22d3ee40; color:#22d3ee; background:#22d3ee10">🔴 Preliminar (resolver permisos)</span>
+      <h3 class="text-base font-display font-bold text-white mt-3 group-hover:text-accent transition-colors duration-300">Acuícola Lomas de San Román</h3>
+      <p class="text-[10px] font-mono text-neon-cyan/40 mt-1 uppercase">データログ</p>
+      <p class="text-xs text-white/25 mt-2 line-clamp-2 font-mono leading-relaxed">Granja de peces ya construida (7 estanques, 67,000 m² de agua) en Campeche. Corrida preliminar.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="p-5 pt-0 relative z-10">
+    <div class="grid grid-cols-2 gap-2 mb-4"><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">Inversión estimada (MXN)</div><div class="font-display font-bold text-white text-sm mt-0.5">$704,000</div></div><div class="rounded-lg p-2.5" style="background:rgba(7,7,8,0.6);border:1px solid rgba(255,255,255,0.03)"><div class="text-[9px] text-white/20 font-mono tracking-wider uppercase">TIR anual (base)</div><div class="font-display font-bold text-white text-sm mt-0.5">17%</div></div></div>
+    <div class="flex items-center justify-between text-[11px] font-mono tracking-widest uppercase group-hover:text-accent-bright transition-colors duration-300" style="color:#22d3ee">
+      <span>>>> ACCESS_LOG</span>
+      <span class="opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all">_</span>
+    </div>
+  </div>
+</a>
+</div>
+<section class="relative overflow-hidden mt-16 p-10 md:p-14 text-center reveal" style="border:1px solid rgba(234,179,8,0.2); background:rgba(5,5,5,0.8); clip-path: polygon(0 20px, 20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);">
+  <div class="absolute inset-0 scanlines-overlay"></div>
+  <div class="absolute inset-0" style="background:linear-gradient(135deg, rgba(234,179,8,0.03), transparent 50%, rgba(34,211,238,0.02))"></div>
+  <div class="relative">
+    <div class="font-mono text-neon-cyan/50 text-[10px] uppercase tracking-widest mb-3">SYSTEM.PROMPT // コンタクト</div>
+    <h2 class="text-2xl md:text-3xl font-display font-bold text-white uppercase tracking-tight">[ ¿TE_INTERESA_ALGUNO? ]</h2>
+    <p class="text-white/40 mt-3 max-w-lg mx-auto text-sm font-mono leading-relaxed">> Cada proyecto tiene su corrida financiera completa y honesta — incluido el escenario que puede perder.</p>
+    <div class="my-6 max-w-xs mx-auto h-px bg-gradient-to-r from-transparent via-accent to-transparent"></div>
+    <p class="text-white/50 text-sm font-mono"><span class="text-accent font-bold">Erik Hernández</span> // <span>erikjosehernandez@gmail.com</span></p>
+  </div>
+</section>
+</main>
+<footer class="max-w-5xl mx-auto px-6 py-16">
+  <div class="section-divider mb-10"></div>
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/25">
+    <div class="flex items-center gap-2">
+      <div class="w-5 h-5 rounded-md bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center">
+        <span class="font-bold text-white text-[7px]">EH</span>
+      </div>
+      <span class="font-display font-semibold tracking-wider uppercase">Portafolio de Inversión</span>
+    </div>
+    <div class="flex items-center gap-6">
+      <span>Cifras en MXN</span>
+      <span class="text-emerald-400/60">● verificado</span>
+      <span class="text-amber-400/60">● por confirmar</span>
+      <span class="text-rose-400/60">● estimación</span>
+    </div>
+    <span class="font-mono text-white/15">2026</span>
+  </div>
+</footer>
+  </div>
+
+  <script>
+  (function() {
+    'use strict';
+    const isMobile = window.innerWidth < 769;
+    let mouseX = -999, mouseY = -999, scrollY = 0, scrollPct = 0;
+    const ease = 0.12;
+
+    // ═══════════════════════════════════════════
+    // 1. PARTICLE CONSTELLATION (Canvas)
+    // ═══════════════════════════════════════════
+    if (!isMobile) {
+      const cvs = document.getElementById('particle-canvas');
+      const ctx = cvs.getContext('2d');
+      let W, H;
+      function resize() { W = cvs.width = window.innerWidth; H = cvs.height = window.innerHeight; }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const COUNT = 80;
+      const LINK_DIST = 140;
+      const MOUSE_RADIUS = 200;
+      const particles = [];
+
+      for (let i = 0; i < COUNT; i++) {
+        particles.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          r: Math.random() * 1.5 + 0.5,
+          baseAlpha: Math.random() * 0.3 + 0.1
+        });
+      }
+
+      function drawParticles() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Scroll speed boost
+        const scrollBoost = 1 + Math.abs(window._scrollDelta || 0) * 0.02;
+
+        for (let i = 0; i < COUNT; i++) {
+          const p = particles[i];
+          // Mouse repulsion
+          const dxm = p.x - mouseX;
+          const dym = p.y - mouseY;
+          const distM = Math.sqrt(dxm*dxm + dym*dym);
+          if (distM < MOUSE_RADIUS && distM > 0) {
+            const force = (MOUSE_RADIUS - distM) / MOUSE_RADIUS * 0.8;
+            p.vx += (dxm / distM) * force;
+            p.vy += (dym / distM) * force;
+          }
+
+          // Damping
+          p.vx *= 0.97;
+          p.vy *= 0.97;
+
+          // Movement
+          p.x += p.vx * scrollBoost;
+          p.y += p.vy * scrollBoost;
+
+          // Wrap
+          if (p.x < -10) p.x = W + 10;
+          if (p.x > W + 10) p.x = -10;
+          if (p.y < -10) p.y = H + 10;
+          if (p.y > H + 10) p.y = -10;
+
+          // Draw particle (Square block)
+          const alpha = p.baseAlpha * (0.6 + 0.4 * Math.sin(Date.now() * 0.001 + i));
+          ctx.fillStyle = `rgba(234,179,8,${alpha.toFixed(3)})`;
+          ctx.fillRect(p.x - p.r, p.y - p.r, p.r*2.5, p.r*2.5);
+        }
+
+        // Draw connections
+        for (let i = 0; i < COUNT; i++) {
+          for (let j = i + 1; j < COUNT; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const d = Math.sqrt(dx*dx + dy*dy);
+            if (d < LINK_DIST) {
+              const a = (1 - d / LINK_DIST) * 0.12;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.strokeStyle = `rgba(34,211,238,${a.toFixed(3)})`;
+              ctx.lineWidth = 0.5;
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Mouse-to-particle connections
+        if (mouseX > 0) {
+          for (let i = 0; i < COUNT; i++) {
+            const dx = particles[i].x - mouseX;
+            const dy = particles[i].y - mouseY;
+            const d = Math.sqrt(dx*dx + dy*dy);
+            if (d < MOUSE_RADIUS) {
+              const a = (1 - d / MOUSE_RADIUS) * 0.3;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(mouseX, mouseY);
+              ctx.strokeStyle = `rgba(192,132,252,${a.toFixed(3)})`;
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(drawParticles);
+      }
+      requestAnimationFrame(drawParticles);
+    }
+
+    // ═══════════════════════════════════════════
+    // 2. MOUSE TRACKING (shared state)
+    // ═══════════════════════════════════════════
+    document.addEventListener('mousemove', ev => {
+      mouseX = ev.clientX;
+      mouseY = ev.clientY;
+    });
+
+    // ═══════════════════════════════════════════
+    // 3. CUSTOM CURSOR (ring + dot)
+    // ═══════════════════════════════════════════
+    if (!isMobile) {
+      const ring = document.getElementById('cursor-ring');
+      const dot = document.getElementById('cursor-dot');
+      const glow = document.getElementById('mouse-glow');
+      let rx = -100, ry = -100;
+      function tickCursor() {
+        rx += (mouseX - rx) * ease;
+        ry += (mouseY - ry) * ease;
+        const s = ring.classList.contains('hover') ? 56 : 28;
+        ring.style.transform = `translate3d(${rx-s/2}px,${ry-s/2}px,0)`;
+        dot.style.transform = `translate3d(${mouseX-2.5}px,${mouseY-2.5}px,0)`;
+        glow.style.transform = `translate(-50%,-50%) translate3d(${mouseX}px,${mouseY}px,0)`;
+        requestAnimationFrame(tickCursor);
+      }
+      requestAnimationFrame(tickCursor);
+
+      // Hover detection
+      document.querySelectorAll('a,button,[role="button"],.interactive,.magnetic').forEach(el => {
+        el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+        el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+      });
+    }
+
+    // ═══════════════════════════════════════════
+    // 4. CARD SPOTLIGHT + 3D TILT
+    // ═══════════════════════════════════════════
+    document.querySelectorAll('.spotlight-card').forEach(card => {
+      card.addEventListener('mousemove', ev => {
+        const r = card.getBoundingClientRect();
+        const x = ev.clientX - r.left;
+        const y = ev.clientY - r.top;
+        card.style.setProperty('--mx', `${x}px`);
+        card.style.setProperty('--my', `${y}px`);
+        // 3D tilt
+        const cx = r.width / 2;
+        const cy = r.height / 2;
+        const rotX = ((y - cy) / cy) * -3;
+        const rotY = ((x - cx) / cx) * 3;
+        card.style.transform = `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(4px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.removeProperty('--mx');
+        card.style.removeProperty('--my');
+        card.style.transform = '';
+      });
+    });
+
+    // ═══════════════════════════════════════════
+    // 5. MAGNETIC BUTTONS
+    // ═══════════════════════════════════════════
+    document.querySelectorAll('.magnetic').forEach(btn => {
+      btn.addEventListener('mousemove', ev => {
+        const r = btn.getBoundingClientRect();
+        const x = ev.clientX - r.left - r.width / 2;
+        const y = ev.clientY - r.top - r.height / 2;
+        btn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+      });
+    });
+
+    // ═══════════════════════════════════════════
+    // 6. SCROLL EFFECTS (progress, orbs, parallax, grid fade)
+    // ═══════════════════════════════════════════
+    const progressBar = document.getElementById('scroll-progress');
+    const orb1 = document.getElementById('orb1');
+    const orb2 = document.getElementById('orb2');
+    const orb3 = document.getElementById('orb3');
+    const gridOv = document.getElementById('grid-ov');
+    let lastScroll = 0;
+    window._scrollDelta = 0;
+
+    function onScroll() {
+      const sy = window.scrollY;
+      const docH = document.documentElement.scrollHeight - window.innerHeight;
+      scrollPct = docH > 0 ? sy / docH : 0;
+      window._scrollDelta = sy - lastScroll;
+      lastScroll = sy;
+
+      // Scroll progress bar
+      if (progressBar) progressBar.style.width = `${scrollPct * 100}%`;
+
+      // Float orbs with scroll (parallax layers)
+      if (orb1) orb1.style.transform = `translate3d(${Math.sin(scrollPct*3)*30}px, ${-sy*0.15}px, 0)`;
+      if (orb2) orb2.style.transform = `translate3d(${Math.cos(scrollPct*2)*40}px, ${-sy*0.08}px, 0)`;
+      if (orb3) orb3.style.transform = `translate3d(${Math.sin(scrollPct*4)*20}px, ${-sy*0.12}px, 0)`;
+
+      // Grid fade on scroll
+      if (gridOv) gridOv.style.opacity = Math.max(0, 0.6 - scrollPct * 0.8);
+
+      // Parallax elements
+      document.querySelectorAll('[data-parallax]').forEach(el => {
+        const speed = parseFloat(el.dataset.parallax) || 0.1;
+        el.style.transform = `translateY(${-sy * speed}px)`;
+      });
+    }
+
+    let scrollTicking = false;
+    window.addEventListener('scroll', () => {
+      if (!scrollTicking) {
+        requestAnimationFrame(() => {
+          onScroll();
+          scrollTicking = false;
+        });
+        scrollTicking = true;
+      }
+    }, { passive: true });
+    onScroll();
+
+    // ═══════════════════════════════════════════
+    // 7. SCROLL REVEAL (IntersectionObserver)
+    // ═══════════════════════════════════════════
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          const delay = parseInt(entry.target.dataset.revealDelay || '0') || i * 50;
+          setTimeout(() => entry.target.classList.add('active'), delay);
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    // ═══════════════════════════════════════════
+    // 8. NAV SCROLL EFFECT
+    // ═══════════════════════════════════════════
+    const navBar = document.querySelector('.nav-bar');
+    if (navBar) {
+      let navTick = false;
+      window.addEventListener('scroll', () => {
+        if (!navTick) {
+          requestAnimationFrame(() => {
+            const scrolled = window.scrollY > 50;
+            navBar.style.background = scrolled
+              ? 'rgba(7,7,8,0.85)'
+              : 'rgba(7,7,8,0.5)';
+            navBar.style.borderColor = scrolled
+              ? 'rgba(255,255,255,0.06)'
+              : 'rgba(255,255,255,0.04)';
+            navTick = false;
+          });
+          navTick = true;
+        }
+      }, { passive: true });
+    }
+
+    // ═══════════════════════════════════════════
+    // 9. SMOOTH ENTRANCE ANIMATION
+    // ═══════════════════════════════════════════
+    window.addEventListener('DOMContentLoaded', () => {
+      document.body.style.opacity = '0';
+      document.body.style.transition = 'opacity 0.6s ease';
+      requestAnimationFrame(() => {
+        document.body.style.opacity = '1';
+      });
+    });
+
+  })();
+  </script>
+</body></html>

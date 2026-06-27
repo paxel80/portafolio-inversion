@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dossier — Menú Digital + WhatsApp · Cardel</title>
+<style>
+  @page { margin: 16mm 0; }
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body{ font-family:'Segoe UI',system-ui,sans-serif; color:#1f2430; line-height:1.55; background:#fff; }
+  .wrap{ max-width:880px; margin:0 auto; padding:0 26px; }
+  h1,h2,h3{ line-height:1.2; }
+  .cover{ background:linear-gradient(135deg,#0f7a4d,#0c5e3b); color:#fff; padding:54px 26px 44px; text-align:center; }
+  .cover .kic{ font-size:2.6rem; }
+  .cover h1{ font-size:2.15rem; margin:8px 0 6px; }
+  .cover p{ opacity:.92; font-size:1.02rem; max-width:620px; margin:0 auto; }
+  .cover .meta{ margin-top:16px; font-size:.82rem; opacity:.8; }
+  .verdict{ background:#fff7e6; border:2px solid #e8a13b; border-radius:14px; padding:18px 22px; margin:26px 0; }
+  .verdict .lbl{ font-weight:700; color:#b8771b; font-size:.8rem; letter-spacing:.06em; text-transform:uppercase; }
+  .verdict h2{ font-size:1.25rem; margin:4px 0 6px; color:#1f2430; }
+  section{ margin:30px 0; }
+  h2.sec{ font-size:1.3rem; color:#0f7a4d; border-bottom:2px solid #e3ece7; padding-bottom:7px; margin-bottom:14px; display:flex; gap:9px; align-items:center; }
+  .kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:18px 0; }
+  .kpi{ background:#f4f8f6; border:1px solid #e3ece7; border-radius:12px; padding:14px; text-align:center; }
+  .kpi .n{ font-size:1.5rem; font-weight:800; color:#0f7a4d; }
+  .kpi .l{ font-size:.72rem; color:#5d6675; margin-top:3px; }
+  table{ width:100%; border-collapse:collapse; margin:12px 0; font-size:.86rem; }
+  th,td{ padding:9px 11px; text-align:left; border-bottom:1px solid #e9eef0; }
+  th{ background:#0f7a4d; color:#fff; font-weight:600; }
+  td.num,th.num{ text-align:right; font-variant-numeric:tabular-nums; }
+  tr:nth-child(even) td{ background:#f8faf9; }
+  .base-col{ background:#fff7e6 !important; font-weight:700; }
+  .pill{ display:inline-block; padding:2px 9px; border-radius:999px; font-size:.72rem; font-weight:700; }
+  .g{ background:#e3f6e9; color:#11824a; } .y{ background:#fff2d6; color:#aa7510; } .r{ background:#fde4e4; color:#c0392b; }
+  p{ margin:9px 0; } ul{ margin:9px 0 9px 22px; } li{ margin:5px 0; }
+  .cristiano{ background:#eef6ff; border-left:4px solid #3b82c4; padding:12px 16px; border-radius:0 10px 10px 0; font-size:.92rem; }
+  .chart{ background:#f4f8f6; border:1px solid #e3ece7; border-radius:12px; padding:18px; margin:14px 0; }
+  .risk{ background:#fdf3f3; border:1px solid #f0c9c9; border-radius:10px; padding:6px 16px; }
+  .step{ display:flex; gap:13px; margin:11px 0; align-items:flex-start; }
+  .step .num{ flex:0 0 30px; height:30px; background:#0f7a4d; color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.9rem; }
+  .foot{ text-align:center; color:#8a93a0; font-size:.78rem; padding:24px; border-top:1px solid #e9eef0; margin-top:30px; }
+  @media print{ .kpis{ grid-template-columns:repeat(4,1fr); } section{ break-inside:avoid; } }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="kic">📱🍽️</div>
+  <h1>Menú Digital + Pedidos por WhatsApp</h1>
+  <p>Servicio local que digitaliza fondas y restaurantes de Cardel: menú con código QR + un “mesero robot” de WhatsApp que contesta y toma pedidos 24/7.</p>
+  <div class="meta">Dossier de evaluación · Ciudad Cardel, La Antigua, Veracruz · MXN · 26-jun-2026</div>
+</div>
+
+<div class="wrap">
+
+  <div class="verdict">
+    <div class="lbl">🚦 Veredicto honesto</div>
+    <h2>🟡 Sí vale la pena — como autoempleo de bajo riesgo, no como “empresa para hacerse rico”.</h2>
+    <p style="margin:0;font-size:.92rem">Con esfuerzo medio te pagas <b>~$7,000/mes</b> con pocas horas y <b>riesgo de pérdida casi nulo</b> (inviertes ~$1,500, lo recuperas en 1 mes). El cuello de botella no es el dinero ni la tecnología (gratis): es <b>vender, tocar puertas</b>. Mercado chico pero real.</p>
+  </div>
+
+  <section>
+    <h2 class="sec">⭐ Resumen ejecutivo</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="n">~$1,500</div><div class="l">inversión total</div></div>
+      <div class="kpi"><div class="n">1 mes</div><div class="l">recuperas la inversión</div></div>
+      <div class="kpi"><div class="n">$7,193</div><div class="l">utilidad/mes (escenario base)</div></div>
+      <div class="kpi"><div class="n">~$0</div><div class="l">costo de tecnología</div></div>
+    </div>
+    <p>El negocio vende un <b>servicio local</b>, no software. La pieza “menú QR” está casi regalada en internet (OlaClick gratis, Qarta $149/mes), así que <b>nadie paga por eso solo</b>. Lo que el fondero de Cardel sí valora —y nadie le da— es que <b>alguien vaya, le tome fotos al menú, lo deje funcionando, le capacite a la señora de la caja e instale la IA que contesta sola</b>. Eso resuelve confianza + flojera + tecnicismo: lo único que el “gratis de internet” no resuelve.</p>
+  </section>
+
+  <section>
+    <h2 class="sec">🧒 ¿Qué es, en cristiano?</h2>
+    <div class="cristiano">
+      Los restaurantitos pierden ventas porque su menú está en una hoja sucia y contestan el WhatsApp tarde o nunca. Les damos un <b>“mesero digital”</b>: un menú bonito que se abre con un código QR (sin bajar apps) y un <b>robot de WhatsApp</b> que contesta al instante, manda el menú y toma el pedido a cualquier hora. Cobramos una <b>instalación</b> (una vez) + una <b>mensualidad</b> por mantenerlo. Como la tecnología es gratis, casi todo lo que entra es ganancia.
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">🗺️ El mercado de Cardel (con números reales)</h2>
+    <table>
+      <tr><th>Dato</th><th class="num">Cifra</th><th>Confianza</th></tr>
+      <tr><td>Habitantes de Cardel (cabecera)</td><td class="num">20,165</td><td><span class="pill g">🟢 verificado</span></td></tr>
+      <tr><td>Negocios de comida en Cardel (restaurantes + taquerías + fondas)</td><td class="num">~120–180</td><td><span class="pill r">🔴 estimación</span></td></tr>
+      <tr><td>+ pueblos cercanos (Úrsulo Galván, La Antigua, Chachalacas)</td><td class="num">+30–60</td><td><span class="pill r">🔴 estimación</span></td></tr>
+      <tr><td>Internet en Veracruz (de los más bajos del país)</td><td class="num">~71.8%</td><td><span class="pill g">🟢 verificado</span></td></tr>
+      <tr><td>WhatsApp como canal de pedidos en restaurantes chicos</td><td class="num">dominante</td><td><span class="pill g">🟢 verificado</span></td></tr>
+      <tr><td>Comisión que cobran las apps de delivery (tú: 0%)</td><td class="num">20–30%</td><td><span class="pill g">🟢 verificado</span></td></tr>
+    </table>
+    <p><b>Lectura honesta:</b> el mercado es <b>chico</b> — da para un autoempleo digno, no para una empresa de muchos empleados. Pero las apps de delivery llegan débil a Cardel y cobran 20–30% de comisión: muchos negocios <b>no tienen canal digital resuelto</b>. Ahí está tu hueco.</p>
+  </section>
+
+  <section>
+    <h2 class="sec">⚙️ Cómo funciona (y por qué te cuesta ~$0)</h2>
+    <table>
+      <tr><th>Pieza</th><th>Herramienta gratis</th><th>Costo</th></tr>
+      <tr><td>Menú digital + página web</td><td>Cloudflare Pages + QR estático</td><td class="num">$0</td></tr>
+      <tr><td>Robot de WhatsApp</td><td>WhatsApp Cloud API (responder = gratis)</td><td class="num">$0*</td></tr>
+      <tr><td>Inteligencia que contesta</td><td>Groq (14,400 mensajes/día gratis)</td><td class="num">$0</td></tr>
+      <tr><td>Conectar todo</td><td>n8n (gratis, ilimitado)</td><td class="num">$0</td></tr>
+    </table>
+    <p style="font-size:.8rem;color:#5d6675">* Responder a quien te escribe es gratis. Solo las promociones masivas cuestan ~$0.55/mensaje, que se cobran aparte al cliente.</p>
+  </section>
+
+  <section>
+    <h2 class="sec">💰 Los números (3 escenarios)</h2>
+    <table>
+      <tr><th>Métrica</th><th class="num">🔴 Pesimista</th><th class="num base-col">🟡 Base</th><th class="num">🟢 Optimista</th></tr>
+      <tr><td>Setup / mensualidad</td><td class="num">$1,500 / $300</td><td class="num base-col">$2,000 / $400</td><td class="num">$2,500 / $500</td></tr>
+      <tr><td>Clientes activos (mes 36)</td><td class="num">6</td><td class="num base-col">19</td><td class="num">34</td></tr>
+      <tr><td>Mensualidad recurrente (MRR)</td><td class="num">$1,824</td><td class="num base-col">$7,436</td><td class="num">$17,062</td></tr>
+      <tr><td><b>Utilidad mensual (régimen)</b></td><td class="num">$1,307</td><td class="num base-col">$7,193</td><td class="num">$16,902</td></tr>
+      <tr><td>Horas/mes de trabajo</td><td class="num">~5 h</td><td class="num base-col">~13.5 h</td><td class="num">~23 h</td></tr>
+      <tr><td>Utilidad neta 3 años</td><td class="num">$49,976</td><td class="num base-col">$236,737</td><td class="num">$531,821</td></tr>
+      <tr><td>Punto de equilibrio</td><td class="num">3 clientes</td><td class="num base-col">2 clientes</td><td class="num">2 clientes</td></tr>
+      <tr><td>Recuperas inversión</td><td class="num">2 meses</td><td class="num base-col">1 mes</td><td class="num">1 mes</td></tr>
+    </table>
+
+    <div class="chart">
+      <div style="font-size:.82rem;font-weight:700;color:#5d6675;margin-bottom:10px">Utilidad mensual en régimen (MXN)</div>
+      <svg viewBox="0 0 600 170" width="100%" height="170" font-family="Segoe UI,sans-serif">
+        <!-- ejes base -->
+        <line x1="60" y1="140" x2="580" y2="140" stroke="#cdd6d1" stroke-width="1"/>
+        <!-- Pesimista 1307 -->
+        <rect x="110" y="129" width="90" height="11" fill="#c0392b" rx="2"/>
+        <text x="155" y="122" text-anchor="middle" font-size="12" fill="#c0392b" font-weight="700">$1,307</text>
+        <text x="155" y="156" text-anchor="middle" font-size="11" fill="#5d6675">Pesimista</text>
+        <!-- Base 7193 -> escala: 16902 max -> 110px max -->
+        <rect x="280" y="93" width="90" height="47" fill="#e8a13b" rx="2"/>
+        <text x="325" y="86" text-anchor="middle" font-size="12" fill="#b8771b" font-weight="700">$7,193</text>
+        <text x="325" y="156" text-anchor="middle" font-size="11" fill="#5d6675">Base</text>
+        <!-- Optimista 16902 -->
+        <rect x="450" y="30" width="90" height="110" fill="#0f7a4d" rx="2"/>
+        <text x="495" y="23" text-anchor="middle" font-size="12" fill="#0f7a4d" font-weight="700">$16,902</text>
+        <text x="495" y="156" text-anchor="middle" font-size="11" fill="#5d6675">Optimista</text>
+      </svg>
+    </div>
+    <p style="font-size:.82rem;color:#5d6675"><b>Nota de honestidad:</b> el TIR “financiero” sale absurdo (miles de %) porque casi no inviertes — por eso no lo usamos. La métrica real es <b>cuánto te pagas al mes por tu tiempo</b>. Las horas no incluyen el tiempo de <b>vender</b>, que es lo más difícil.</p>
+  </section>
+
+  <section>
+    <h2 class="sec">⚠️ Riesgos (sin maquillaje)</h2>
+    <div class="risk">
+      <ul>
+        <li><b>🔴 Vender es lo difícil:</b> la tecnología es fácil; convencer a doña Mary de pagar una mensualidad, no. El negocio vive o muere de tu trabajo de venta a pie.</li>
+        <li><b>🟡 Competencia “gratis”:</b> si vendes “menú QR”, pierdes (existe gratis). Solo ganas vendiendo <b>servicio local + IA + soporte</b>.</li>
+        <li><b>🟡 Churn (cancelaciones):</b> restaurantes que cierran o no ven valor se van. Retenerlos es la palanca #1 de tus ganancias.</li>
+        <li><b>🟡 Mercado chico:</b> ~150 negocios en Cardel. Techo natural de ~30–60 clientes. No esperes escalar a millones sin salir de la zona.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">🚀 Plan de arranque (primeros 30 días, $0)</h2>
+    <div class="step"><div class="num">1</div><div><b>Monta 1 demo gratis</b> (ya tienes una: “Fonda Doña Mary”). Es tu carta de presentación.</div></div>
+    <div class="step"><div class="num">2</div><div><b>Date de alta en RESICO</b> (persona física): ISR 1%, factura gratis con e.firma. Cobra por SPEI/CoDi (sin comisión).</div></div>
+    <div class="step"><div class="num">3</div><div><b>Visita 5 negocios conocidos</b> (familia, amigos, el de los baños del tianguis). Ofréceles montarlo gratis a cambio de ser tus primeros casos + recomendación.</div></div>
+    <div class="step"><div class="num">4</div><div><b>Cobra la 1.ª instalación</b> ($1,500–$2,000) y arranca la mensualidad. Con eso ya recuperaste la inversión.</div></div>
+    <div class="step"><div class="num">5</div><div><b>Pide que te recomienden.</b> En un pueblo, el boca a boca es tu mejor (y gratis) vendedor.</div></div>
+  </section>
+
+  <div class="foot">
+    Dossier generado para evaluación interna de Erik · Cifras recalculables con <code>03-financiero/modelo_financiero.py</code><br>
+    Fuentes completas en <code>02-investigacion/</code> · Demo del producto en <code>05-mockups/menu-demo.html</code>
+  </div>
+
+</div>
+</body>
+</html>
